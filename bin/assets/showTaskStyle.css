@@ -1,0 +1,61 @@
+.bgColor{
+    -fx-background-color: white;
+}
+.nameText{
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+.dateText{
+    -fx-fill: #BFBFBF;
+    /* -fx-font-weight: bold; */
+    -fx-font-size: 16px;
+}
+.btn{
+    -fx-background-radius: 50%;
+    -fx-background-color: #E6E6E6;
+}
+.taskBtn{
+    -fx-background-radius: 12px;
+    -fx-background-color: #FF6629;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+}
+.list-view, .list-view .list-cell {
+    -fx-background-color: transparent;
+}
+.pTask{
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+}
+.check-box .box {
+    -fx-background-color: transparent;
+    -fx-border-color: #BFBFBF;
+    -fx-border-radius: 6px;
+    -fx-border-width: 2px;
+    -fx-padding: 8px;
+} 
+.taskLabel {
+    -fx-background-color: #FF6629;
+    -fx-min-width: 71px;
+    -fx-min-height: 27px;
+    -fx-max-width: 71px;
+    -fx-max-height: 27px;
+    -fx-background-radius: 38px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F7D9D9;
+    -fx-alignment: center;
+}
+.descText{
+    -fx-fill: #BFBFBF;
+    -fx-font-size: 16px;
+}
+.timeText{
+    -fx-fill: #FF6629;
+    -fx-font-size: 16px;
+}
+.cbBox{
+    -fx-alignment: CENTER_LEFT;
+    -fx-spacing: 24;
+}

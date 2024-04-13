@@ -1,0 +1,19 @@
+.bgColor{
+    -fx-background-color: white;
+}
+.addText{
+    -fx-text-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 28px;
+}
+.btn{
+    -fx-background-color: #FF6629;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    /* -fx-font-weight: ; */
+}
+.labelColor{
+    -fx-text-fill: #A6A6A6;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
