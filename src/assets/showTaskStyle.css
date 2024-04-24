@@ -21,12 +21,21 @@
     -fx-text-fill: white;
     -fx-font-size: 20px;
 }
-.list-view, .list-view .list-cell {
-    -fx-background-color: transparent;
-}
 .pTask{
     -fx-font-weight: bold;
     -fx-font-size: 20px;
+}
+.filterBtn{
+    -fx-background-radius: 20px;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: black;
+    -fx-background-color: #E6E6E6;
+    -fx-border-color: none;
+}
+.filterBtn:focused{
+    -fx-background-color: #FF6629;
+    -fx-text-fill: white;
 }
 .check-box .box {
     -fx-background-color: transparent;
@@ -58,4 +67,14 @@
 .cbBox{
     -fx-alignment: CENTER_LEFT;
     -fx-spacing: 24;
+}
+.taskDoneText{
+    -fx-fill: #BFBFBF;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-strikethrough: true;
+}
+.timeDoneText{
+    -fx-fill: #BFBFBF;
+    -fx-font-size: 16px;
 }

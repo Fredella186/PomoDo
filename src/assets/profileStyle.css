@@ -1,0 +1,37 @@
+.bgColor{
+    -fx-background-color: white;
+}
+.profileText{
+    -fx-fill: black;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+}
+.labelText{
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: #A6A6A6;
+}
+.input{
+    -fx-background-radius: 3px;
+}
+.inputText{
+    -fx-text-fill: #BFBFBF;
+}
+.profileBtn{
+    -fx-background-color: #FF6629;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+.linkText{
+    -fx-text-fill: #25282B;
+    -fx-font-size: 16px;
+    -fx-alignment: CENTER;
+    -fx-underline: true;
+}
+.passBtn{
+    -fx-background-color: transparent;
+    -fx-text-fill: #A6A6A6;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}

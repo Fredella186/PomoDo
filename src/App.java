@@ -1,15 +1,26 @@
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -20,31 +31,31 @@ public class App extends Application {
    public void start(Stage primaryStage) throws Exception {
     
     BorderPane borderPane = new BorderPane();
-    String css = this.getClass().getResource("/assets/loginStyle.css").toExternalForm();
-    borderPane.getStylesheets().add(css);
+    borderPane.getStylesheets().add("/assets/loginStyle.css");
 
     borderPane.getStyleClass().add("bgColor");
 
     VBox box = new VBox();
     box.setAlignment(Pos.CENTER);
     
-    GridPane textPane = new GridPane();
-    textPane.setAlignment(Pos. CENTER);
-    textPane.setHgap(1);
-    textPane.setVgap(1);
-    
-    Text welcomeText = new Text("Welcome");
-    textPane.add(welcomeText,0,1);
+    // Text welcome
+    Text welcomeText = new Text("Welcome Back");
     welcomeText.getStyleClass().add("fontWelcome");
 
     Text detailText = new Text("Please enter your details");
-    textPane.add(detailText,0,2);
+    detailText.setTextAlignment(TextAlignment.CENTER);
+    detailText.getStyleClass().add("text");
+    
+    VBox textPane = new VBox(welcomeText, detailText);
+    textPane.setAlignment(Pos. CENTER);
 
+    // Input 
     GridPane inputPane = new GridPane();
     inputPane.setAlignment(Pos. CENTER);
     inputPane.setHgap(10);
     inputPane.setVgap(10);
 
+    //Label dan input email
     Label emailLabel = new Label("Email");
     inputPane.add(emailLabel,0,3);
     emailLabel.getStyleClass().add("labelColor");
@@ -54,11 +65,12 @@ public class App extends Application {
     emailInput.setPrefWidth(399);
     emailInput.setPrefHeight(51);
 
+    // Label dan input password
     Label passLabel = new Label("Password");
     inputPane.add(passLabel,0,5);
     passLabel.getStyleClass().add("labelColor");
     
-    TextField passInput = new TextField();
+    PasswordField passInput = new PasswordField();
     inputPane.add(passInput,0,6);
     passInput.setPrefWidth(399);
     passInput.setPrefHeight(51);
@@ -68,18 +80,64 @@ public class App extends Application {
     buttonPane.setHgap(10);
     buttonPane.setVgap(10);
 
-    Button btnSignUp = new Button("Log In");
-    buttonPane.add(btnSignUp,0,7);
-    btnSignUp.getStyleClass().add("button");
-    btnSignUp.setPrefWidth(399);
-    btnSignUp.setPrefHeight(51);
+    // Button Log In
+    Button btnLogIn = new Button("Log In");
+    buttonPane.add(btnLogIn,0,7);
+    btnLogIn.getStyleClass().add("button");
+    btnLogIn.setPrefWidth(399);
+    btnLogIn.setPrefHeight(51);
 
-    btnSignUp.setOnAction(new EventHandler<ActionEvent>() {
+    btnLogIn.setOnAction(new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
             try {
-                Todolist.show(primaryStage); // Call the Todolist's add method to display the stage
-                // primaryStage.close(); // Close the login stage after successful login
+                // Ambil input email dan password
+                String email = emailInput.getText();
+                String pass = passInput.getText();
+                String hashedPassword = hashPassword(pass);
+
+                // Validate email and password
+                if (email.isEmpty()) {
+                    // Display error message
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Registration Successful");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Silahkan Isi Email");
+                    successAlert.showAndWait();
+                } else if (pass.isEmpty()) {
+                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                    successAlert.setTitle("Registration Successful");
+                    successAlert.setHeaderText(null);
+                    successAlert.setContentText("Silahkan Isi Password");
+                    successAlert.showAndWait();
+                }
+
+                // Connect database
+                Connection connection = Dbconnect.getConnect();
+                // Insert data ke database
+                String sql = "SELECT * FROM user WHERE email = ? AND password = ?";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, email);
+                statement.setString(2, hashedPassword);
+                statement.executeQuery();
+
+                // Show a success alert for 5 seconds
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Login Berhasil");
+                successAlert.setHeaderText(null);
+                successAlert.setContentText("Login Berhasil");
+                successAlert.showAndWait();
+
+                // Redirect to the app start page
+                Todolist.show(primaryStage);
+                } catch (SQLException e) {
+                // Show an error alert
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Login Gagal");
+                errorAlert.setHeaderText(null);
+                errorAlert.setContentText("Login Gagal. Silahkan Coba Lagi");
+                errorAlert.showAndWait();
+                // App.start(registerStage);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -90,9 +148,39 @@ public class App extends Application {
     BorderPane.setAlignment(box, Pos.CENTER);
     borderPane.setCenter(box);
 
+    Text haveAccText = new Text("Don't have an account?");
+    haveAccText.getStyleClass().add("accText");
+    Hyperlink logInLink = new Hyperlink("Sign Up");
+
+    logInLink.setOnAction(new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            try {
+                Register.register(primaryStage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    });
+
+    HBox haveAccPane = new HBox(haveAccText,logInLink);
+    haveAccPane.setAlignment(Pos.CENTER);
+    haveAccPane.setPadding(new Insets(0, 0, 50, 0));
+    borderPane.setBottom(haveAccPane);
+
     Scene scene = new Scene(borderPane, 1280, 768);
     primaryStage.setTitle("Login");
     primaryStage.setScene(scene);
     primaryStage.show();
    }
+
+   public static String hashPassword(String password) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance("SHA-256"); // Pilih algoritma
+    byte[] bytes = md.digest(password.getBytes()); // Hash password menjadi byte
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < bytes.length; i++) {
+        sb.append(String.format("%02x", bytes[i])); // Konversi byte ke hexadecimal
+    }
+    return sb.toString(); // Kembalikan string hexadecimal
+}
 }
