@@ -1,4 +1,4 @@
-#![Post-PomoDo](https://github.com/Fredella186/ToDoList/assets/120700069/e50d541a-aded-487e-b759-bbe786b6a03c)
+![Post-PomoDo](https://github.com/Fredella186/ToDoList/assets/120700069/e50d541a-aded-487e-b759-bbe786b6a03c)
 # Getting Started ✨
 
 PomoDo is a to do list application with gamification implementation developed with Java language. This application helps freelancers in tracking and handling daily tasks that need to be done.
