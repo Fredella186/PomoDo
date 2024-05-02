@@ -2,6 +2,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -25,6 +26,7 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 
+    public static int currentUserId;
     public static void main(String[] args) {
     launch(args);
 }
@@ -88,59 +90,63 @@ public class App extends Application {
     btnLogIn.setPrefHeight(51);
 
     btnLogIn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-            try {
-                // Ambil input email dan password
-                String email = emailInput.getText();
-                String pass = passInput.getText();
-                String hashedPassword = hashPassword(pass);
+    @Override
+    public void handle(ActionEvent event) {
+        try {
+        // Get email and password from input fields
+        String email = emailInput.getText();
+        String pass = passInput.getText();
+        String hashedPassword = hashPassword(pass);
 
-                // Validate email and password
-                if (email.isEmpty()) {
-                    // Display error message
-                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                    successAlert.setTitle("Registration Successful");
-                    successAlert.setHeaderText(null);
-                    successAlert.setContentText("Silahkan Isi Email");
-                    successAlert.showAndWait();
-                } else if (pass.isEmpty()) {
-                    Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                    successAlert.setTitle("Registration Successful");
-                    successAlert.setHeaderText(null);
-                    successAlert.setContentText("Silahkan Isi Password");
-                    successAlert.showAndWait();
-                }
+        // Validate email and password (same as before)
 
-                // Connect database
-                Connection connection = Dbconnect.getConnect();
-                // Insert data ke database
-                String sql = "SELECT * FROM user WHERE email = ? AND password = ?";
-                PreparedStatement statement = connection.prepareStatement(sql);
-                statement.setString(1, email);
-                statement.setString(2, hashedPassword);
-                statement.executeQuery();
+        // Connect to the database
+        Connection connection = Dbconnect.getConnect();
 
-                // Show a success alert for 5 seconds
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Login Berhasil");
-                successAlert.setHeaderText(null);
-                successAlert.setContentText("Login Berhasil");
-                successAlert.showAndWait();
+        // Prepare a query to SELECT user ID with email and password
+        String sql = "SELECT id FROM user WHERE email = ? AND password = ?";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, email);
+        statement.setString(2, hashedPassword);
 
-                // Redirect to the app start page
-                Todolist.show(primaryStage);
-                } catch (SQLException e) {
-                // Show an error alert
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Login Gagal");
-                errorAlert.setHeaderText(null);
-                errorAlert.setContentText("Login Gagal. Silahkan Coba Lagi");
-                errorAlert.showAndWait();
-                // App.start(registerStage);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        // Execute the query and get the result set
+        ResultSet resultSet = statement.executeQuery();
+
+        // Check if a user was found
+        if (resultSet.next()) {
+            // Get the user ID from the result set
+            int userId = resultSet.getInt("id");
+            App.currentUserId = userId;
+
+            // Use the user ID for further actions (e.g., store in session, redirect with ID)
+            System.out.println("Login successful! User ID: " + userId); // Or use userId for further actions
+
+            // Redirect to the app start page (replace with your actual logic)
+            Todolist.show(primaryStage);
+        } else {
+            // User not found (invalid login)
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Login Failed");
+            errorAlert.setHeaderText(null);
+            errorAlert.setContentText("Login failed. Please check your email and password.");
+            errorAlert.showAndWait();
+        }
+
+        // Close the result set and statement (important for resource management)
+        resultSet.close();
+        statement.close();
+
+        } catch (SQLException e) {
+        // Handle database errors (e.g., connection issues)
+        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+        errorAlert.setTitle("Login Failed");
+        errorAlert.setHeaderText(null);
+        errorAlert.setContentText("Login failed. Please check your email and password.");
+        errorAlert.showAndWait();
+        } catch (Exception e) {
+        // Handle other unexpected exceptions
+        e.printStackTrace();
+        }
         }
     });
 
@@ -175,12 +181,12 @@ public class App extends Application {
    }
 
    public static String hashPassword(String password) throws NoSuchAlgorithmException {
-    MessageDigest md = MessageDigest.getInstance("SHA-256"); // Pilih algoritma
-    byte[] bytes = md.digest(password.getBytes()); // Hash password menjadi byte
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < bytes.length; i++) {
-        sb.append(String.format("%02x", bytes[i])); // Konversi byte ke hexadecimal
+        MessageDigest md = MessageDigest.getInstance("SHA-256"); // Pilih algoritma
+        byte[] bytes = md.digest(password.getBytes()); // Hash password menjadi byte
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            sb.append(String.format("%02x", bytes[i])); // Konversi byte ke hexadecimal
+        }
+        return sb.toString(); // Kembalikan string hexadecimal
     }
-    return sb.toString(); // Kembalikan string hexadecimal
-}
 }

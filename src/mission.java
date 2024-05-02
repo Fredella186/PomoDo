@@ -26,7 +26,10 @@ public class mission {
         Image thunderImg = new Image(mission.class.getResourceAsStream("/assets/Image/Vector 74.png"));
         ImageView imageView = new ImageView();
         imageView.setImage(thunderImg);
+        imageView.setFitHeight(40);
+        imageView.setFitWidth(28);
         HBox dayBox = new HBox(numberText, imageView);
+        dayBox.setSpacing(13);
 
         Text daysText = new Text("days streak");
         daysText.getStyleClass().add("missionText");
@@ -37,16 +40,26 @@ public class mission {
         Image checkImg = new Image(mission.class.getResourceAsStream("/assets/Image/Union.png"));
         ImageView checkView = new ImageView();
         checkView.setImage(checkImg);
+        checkView.setFitHeight(40);
+        checkView.setFitWidth(40);
+        checkView.getStyleClass().add("imgCheck");
         HBox taskBox = new HBox(cmpnumberText, checkView);
+        taskBox.setSpacing(5);
         
         Text completedText = new Text("tasks completed");
         completedText.getStyleClass().add("missionText");
         VBox completedBox = new VBox(taskBox,completedText);
 
-        HBox missionBox = new HBox(streakBox,completedBox);
+        Image lineImg = new Image(mission.class.getResourceAsStream("/assets/Image/line.png"));
+        ImageView lineView = new ImageView(lineImg);
+        lineView.setFitHeight(119);
+
+        HBox missionBox = new HBox(streakBox,lineView,completedBox);
+        missionBox.setSpacing(50);
         BorderPane.setAlignment(missionBox, Pos.CENTER);
-        missionBox.setPadding(new Insets(20,20,20,20));
+        missionBox.setPadding(new Insets(45,20,20,20));
         borderPane.setCenter(missionBox);
+        
 
         Image createImg = new Image(mission.class.getResourceAsStream("/assets/Image/Mask Group.png"));
         ImageView createView = new ImageView();
@@ -121,9 +134,6 @@ public class mission {
 
         BorderPane.setAlignment(missionCompletedBox, Pos.CENTER);
         borderPane.setBottom(missionCompletedBox);
-
-
-
 
         Scene scene = new Scene(borderPane, 450, 768);
         showMissionStage.setTitle("Mission");

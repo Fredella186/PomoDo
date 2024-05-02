@@ -78,3 +78,12 @@
     -fx-fill: #BFBFBF;
     -fx-font-size: 16px;
 }
+.progress-bar > .track {
+    -fx-control-inner-background: #E6E6E6;
+    -fx-background-radius: 100px;
+    -fx-text-box-border: #E6E6E6;
+  }
+.progress-bar > .bar {
+    -fx-background-color: #0D0E12;
+    -fx-background-radius: 100px;
+}

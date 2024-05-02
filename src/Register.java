@@ -58,14 +58,24 @@ public class Register {
         inputPane.add(emailInput,0,4);
         emailInput.setPrefWidth(399);
         emailInput.setPrefHeight(51);
+
+        //Label dan input username
+        Label usernameLabel = new Label("Username");
+        inputPane.add(usernameLabel,0,5);
+        usernameLabel.getStyleClass().add("labelColor");
+
+        TextField usernameInput = new TextField();
+        usernameInput.setPrefWidth(399);
+        usernameInput.setPrefHeight(51);
+        inputPane.add(usernameInput,0,6);
     
         // Label dan input password
         Label passLabel = new Label("Password");
-        inputPane.add(passLabel,0,5);
+        inputPane.add(passLabel,0,7);
         passLabel.getStyleClass().add("labelColor");
         
         PasswordField passInput = new PasswordField();
-        inputPane.add(passInput,0,6);
+        inputPane.add(passInput,0,8);
         passInput.setPrefWidth(399);
         passInput.setPrefHeight(51);
     
@@ -88,6 +98,7 @@ public class Register {
                     // Ambil input email dan password
                     String email = emailInput.getText();
                     String pass = passInput.getText();
+                    String username = usernameInput.getText();
                     String hashedPassword = hashPassword(pass);
 
                     // Validate email and password
@@ -96,30 +107,37 @@ public class Register {
                         Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                         successAlert.setTitle("Registration Successful");
                         successAlert.setHeaderText(null);
-                        successAlert.setContentText("Silahkan Isi Email");
+                        successAlert.setContentText("Please Fill in the Email");
                         successAlert.showAndWait();
                     } else if (pass.isEmpty()) {
                         Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                         successAlert.setTitle("Registration Successful");
                         successAlert.setHeaderText(null);
-                        successAlert.setContentText("Silahkan Isi Password");
+                        successAlert.setContentText("Please Fill in the Password");
                         successAlert.showAndWait();
-                    }
+                    }else if (username.isEmpty()) {
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Registration Successful");
+                        successAlert.setHeaderText(null);
+                        successAlert.setContentText("Please Fill in the Username");
+                        successAlert.showAndWait();
+                    } 
 
                     // Connect database
                     Connection connection = Dbconnect.getConnect();
                     // Insert data ke database
-                    String sql = "INSERT INTO user (email, password) VALUES (?, ?)";
+                    String sql = "INSERT INTO user (email, password,username) VALUES (?, ?,?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
                     statement.setString(1, email);
                     statement.setString(2, hashedPassword);
+                    statement.setString(3, username);
                     statement.executeUpdate();
 
                     // Show a success alert for 5 seconds
                     Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                    successAlert.setTitle("Registrasi Berhasil");
+                    successAlert.setTitle("Registration Successful");
                     successAlert.setHeaderText(null);
-                    successAlert.setContentText("Registrasi Berhasil");
+                    successAlert.setContentText("Registration Successful. Please Log In");
                     successAlert.showAndWait();
 
                     // Redirect to the app start page
@@ -128,9 +146,9 @@ public class Register {
                     } catch (SQLException e) {
                     // Show an error alert
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                    errorAlert.setTitle("Registrasi Gagal");
+                    errorAlert.setTitle("Registration Failed");
                     errorAlert.setHeaderText(null);
-                    errorAlert.setContentText("Registrasi Gagal. Silahkan Coba Lagi");
+                    errorAlert.setContentText("Registration Failed");
                     errorAlert.showAndWait();
                     // App.start(registerStage);
                 } catch (Exception e) {

@@ -1,9 +1,12 @@
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-
+import java.util.ArrayList;
+import java.util.List;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,11 +19,11 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -29,223 +32,477 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Todolist {
-    public static TableView table = new TableView();
+    public static List<String> tasksId;
+    public static List<String> tasks;
+    public static List<String> tasksLabel;
+    public static List<String> tasksDesc;
+    public static List<String> tasksDate;
+    public static List<String> tasksCategory;
+    public static List<String> tasksNewCategory;
     private static final int ITEMS_PER_PAGE = 2;
-public static void add(Stage addStage) throws Exception{
-    BorderPane borderPane = new BorderPane();
-    // String css = getClass().getResource("/assets/loginStyle.css").toExternalForm();
-    borderPane.getStylesheets().add("/assets/addTaskStyle.css");
 
-    borderPane.getStyleClass().add("bgColor");
-
-    VBox box = new VBox();
-    box.setAlignment(Pos.CENTER);
-    
-    GridPane addPane = new GridPane();
-    addPane.setAlignment(Pos. CENTER);
-    // addPane.setHgap(5);
-    addPane.setVgap(5);
-    
-    Text newText = new Text("Add New Task");
-    addPane.add(newText,0,1);
-    newText.getStyleClass().add("addText");
-
-    Label taskLabel = new Label("Task Name");
-    addPane.add(taskLabel,0,2);
-    taskLabel.getStyleClass().add("labelColor");
-
-    TextField taskInput = new TextField();
-    addPane.add(taskInput,0,3);
-    taskInput.setPrefWidth(250);
-    taskInput.setPrefHeight(35);
-
-    Label descLabel = new Label("Description");
-    addPane.add(descLabel,0,4);
-    descLabel.getStyleClass().add("labelColor");
-
-    TextArea descInput = new TextArea();
-    addPane.add(descInput,0,5);
-    descInput.setPrefWidth(250);
-    descInput.setPrefHeight(50);
-
-    Label dateLabel = new Label("Date to end the task");
-    addPane.add(dateLabel,0,6);
-    dateLabel.getStyleClass().add("labelColor");
-
-    DatePicker dateInput = new DatePicker();
-    addPane.add(dateInput,0,7);
-    dateInput.setPrefWidth(120);
-    dateInput.setPrefHeight(35);
-
-    Label timeLabel = new Label("Time");
-    addPane.add(timeLabel,0,8);
-    timeLabel.getStyleClass().add("labelColor");
-
-    ComboBox<String> hourInput = new ComboBox<>(); 
-    for (int hour = 0; hour < 24; hour++){
-        hourInput.getItems().add(String.format("%02d",hour));
+    public static String[] getTaskId() throws SQLException {
+      Connection connection = Dbconnect.getConnect();
+      String sql = "SELECT id FROM task WHERE user_id = ?"; 
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, App.currentUserId);
+  
+      ResultSet resultSet = statement.executeQuery();
+  
+      List<String> tasksIdList = new ArrayList<>(); 
+      Todolist.tasksId = tasksIdList;
+  
+      while (resultSet.next()) {
+        tasksIdList.add(resultSet.getString(1));
+      }
+  
+      // Convert the list to a String array (if needed)
+      String[] tasksIdArray = tasksIdList.toArray(new String[tasksIdList.size()]);
+  
+      resultSet.close();
+      statement.close();
+      connection.close(); 
+  
+      return tasksIdArray; 
     }
-    hourInput.setValue("00");
-    // addPane.add(hourInput,0,9);
-    
-    ComboBox<String> minuteInput = new ComboBox<>(); 
-    for (int minute = 0; minute < 60; minute++){
-        minuteInput.getItems().add(String.format("%02d",minute));
+
+    public static String[] getTask() throws SQLException {
+      Connection connection = Dbconnect.getConnect();
+      String sql = "SELECT title FROM task WHERE user_id = ?"; 
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, App.currentUserId);
+  
+      ResultSet resultSet = statement.executeQuery();
+  
+      List<String> tasksList = new ArrayList<>(); 
+      Todolist.tasks = tasksList;
+  
+      while (resultSet.next()) {
+        tasksList.add(resultSet.getString(1));
+      }
+  
+      // Convert the list to a String array (if needed)
+      String[] tasksArray = tasksList.toArray(new String[tasksList.size()]);
+  
+      resultSet.close();
+      statement.close();
+      connection.close(); 
+  
+      return tasksArray; 
     }
-    minuteInput.setValue("00");
-    // addPane.add(minuteInput,1,9);
-    HBox timePicker = new HBox(hourInput,minuteInput);
-    addPane.add(timePicker,0,9);
 
-    Label priorityLabel = new Label("Priority");
-    addPane.add(priorityLabel,0,10);
-    priorityLabel.getStyleClass().add("labelColor");
+    public static String[] getTasksLabel() throws SQLException {
+      Connection connection = Dbconnect.getConnect();
+      String sql = "SELECT label FROM task WHERE user_id = ?"; 
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, App.currentUserId);
+  
+      ResultSet resultSet = statement.executeQuery();
+  
+      List<String> tasksLabelList = new ArrayList<>(); 
+      Todolist.tasksLabel = tasksLabelList;
+  
+      while (resultSet.next()) {
+        tasksLabelList.add(resultSet.getString(1));
+      }
+  
+      // Convert the list to a String array (if needed)
+      String[] tasksLabelArray = tasksLabelList.toArray(new String[tasksLabelList.size()]);
+  
+      resultSet.close();
+      statement.close();
+      connection.close(); 
+  
+      return tasksLabelArray; 
+    }
 
-    ChoiceBox<String> priorityInput = new ChoiceBox<>();
-    priorityInput.getItems().addAll("Low","Medium","High");
-    priorityInput.setValue("Low");
-    addPane.add(priorityInput,0,11);
-    priorityInput.setPrefWidth(120);
-    priorityInput.setPrefHeight(35);
+    public static String[] getTasksDesc() throws SQLException {
+      Connection connection = Dbconnect.getConnect();
+      String sql = "SELECT description FROM task WHERE user_id = ?"; 
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, App.currentUserId);
+  
+      ResultSet resultSet = statement.executeQuery();
+  
+      List<String> tasksDescList = new ArrayList<>(); 
+      Todolist.tasksDesc = tasksDescList;
+  
+      while (resultSet.next()) {
+        tasksDescList.add(resultSet.getString(1));
+      }
+  
+      // Convert the list to a String array (if needed)
+      String[] tasksDescArray = tasksDescList.toArray(new String[tasksDescList.size()]);
+  
+      resultSet.close();
+      statement.close();
+      connection.close(); 
+  
+      return tasksDescArray; 
+    }
 
-    Label tagLabel = new Label("Tag");
-    addPane.add(tagLabel,0,12);
-    tagLabel.getStyleClass().add("labelColor");
+    public static String[] getTasksCategory() throws SQLException {
+      Connection connection = Dbconnect.getConnect();
+      String sql = "SELECT priority_id FROM task WHERE user_id = ?"; 
+      // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.user_id = ?";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, App.currentUserId);
+  
+      ResultSet resultSet = statement.executeQuery();
+  
+      List<String> tasksCategoryList = new ArrayList<>(); 
+      Todolist.tasksCategory = tasksCategoryList;
+  
+      while (resultSet.next()) {
+        tasksCategoryList.add(resultSet.getString(1));
+      }
+  
+      // Convert the list to a String array (if needed)
+      String[] tasksCategoryArray = tasksCategoryList.toArray(new String[tasksCategoryList.size()]);
+  
+      resultSet.close();
+      statement.close();
+      connection.close(); 
+  
+      return tasksCategoryArray; 
+    }
 
-    TextField tagInput = new TextField();
-    addPane.add(tagInput,0,13);
-    tagInput.setPrefWidth(120);
-    tagInput.setPrefHeight(35);
-    
-    Button addBtn = new Button("Add Task");
-    // addPane.add(addBtn,0,13);
-    addBtn.setPrefWidth(80);
-    addBtn.setPrefHeight(35);
-    addBtn.getStyleClass().add("btn");
+    public static String[] getNewTasksCategory() throws SQLException {
+      Connection connection = Dbconnect.getConnect();
+      String sql = "SELECT new_priority_id FROM task WHERE user_id = ?"; 
+      // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.user_id = ?";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, App.currentUserId);
+  
+      ResultSet resultSet = statement.executeQuery();
+  
+      List<String> tasksNewCategoryList = new ArrayList<>(); 
+      Todolist.tasksNewCategory = tasksNewCategoryList;
+  
+      while (resultSet.next()) {
+        tasksNewCategoryList.add(resultSet.getString(1));
+      }
+  
+      // Convert the list to a String array (if needed)
+      String[] tasksNewCategoryArray = tasksNewCategoryList.toArray(new String[tasksNewCategoryList.size()]);
+  
+      resultSet.close();
+      statement.close();
+      connection.close(); 
+  
+      return tasksNewCategoryArray; 
+    }
 
-    Button closeBtn = new Button("Close");
-    // addPane.add(closeBtn,1,10);
-    closeBtn.setPrefWidth(80);
-    closeBtn.setPrefHeight(35);
-    // closeBtn.getStyleClass().add("btn");
+    public static String[] getTasksDate() throws SQLException {
+      Connection connection = Dbconnect.getConnect();
+      String sql = "SELECT deadline FROM task WHERE user_id = ?"; 
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, App.currentUserId);
+  
+      ResultSet resultSet = statement.executeQuery();
+  
+      List<String> tasksDateList = new ArrayList<>(); 
+      Todolist.tasksDate = tasksDateList;
+  
+      while (resultSet.next()) {
+        tasksDateList.add(resultSet.getString(1));
+      }
+  
+      // Convert the list to a String array (if needed)
+      String[] tasksDateArray = tasksDateList.toArray(new String[tasksDateList.size()]);
+  
+      resultSet.close();
+      statement.close();
+      connection.close(); 
+  
+      return tasksDateArray; 
+    }
 
-    HBox btnBox = new HBox(addBtn,closeBtn);
-    btnBox.setSpacing(5);
-    addPane.add(btnBox,0,14);
+    public static void add(Stage addStage) throws Exception{
+        BorderPane borderPane = new BorderPane();
+        // String css = getClass().getResource("/assets/loginStyle.css").toExternalForm();
+        borderPane.getStylesheets().add("/assets/addTaskStyle.css");
 
-    
-    addBtn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-            try{
+        borderPane.getStyleClass().add("bgColor");
+
+        VBox box = new VBox();
+        box.setAlignment(Pos.CENTER);
+        
+        GridPane addPane = new GridPane();
+        addPane.setAlignment(Pos. CENTER);
+        // addPane.setHgap(5);
+        addPane.setVgap(5);
+        
+        Text newText = new Text("Add New Task");
+        addPane.add(newText,0,1);
+        newText.getStyleClass().add("addText");
+
+        Label taskLabel = new Label("Task Name");
+        addPane.add(taskLabel,0,2);
+        taskLabel.getStyleClass().add("labelColor");
+
+        TextField taskInput = new TextField();
+        addPane.add(taskInput,0,3);
+        taskInput.setPrefWidth(250);
+        taskInput.setPrefHeight(35);
+
+        Label descLabel = new Label("Description");
+        addPane.add(descLabel,0,4);
+        descLabel.getStyleClass().add("labelColor");
+
+        TextArea descInput = new TextArea();
+        addPane.add(descInput,0,5);
+        descInput.setPrefWidth(250);
+        descInput.setPrefHeight(50);
+
+        Label dateLabel = new Label("Date to end the task");
+        addPane.add(dateLabel,0,6);
+        dateLabel.getStyleClass().add("labelColor");
+
+        DatePicker dateInput = new DatePicker();
+        addPane.add(dateInput,0,7);
+        dateInput.setPrefWidth(120);
+        dateInput.setPrefHeight(35);
+
+        Label timeLabel = new Label("Time");
+        addPane.add(timeLabel,0,8);
+        timeLabel.getStyleClass().add("labelColor");
+
+        ComboBox<String> hourInput = new ComboBox<>(); 
+        for (int hour = 0; hour < 24; hour++){
+            hourInput.getItems().add(String.format("%02d",hour));
+        }
+        hourInput.setValue("00");
+        // addPane.add(hourInput,0,9);
+        
+        ComboBox<String> minuteInput = new ComboBox<>(); 
+        for (int minute = 0; minute < 60; minute++){
+            minuteInput.getItems().add(String.format("%02d",minute));
+        }
+        minuteInput.setValue("00");
+        // addPane.add(minuteInput,1,9);
+        HBox timePicker = new HBox(hourInput,minuteInput);
+        addPane.add(timePicker,0,9);
+
+        Label priorityLabel = new Label("Priority");
+        addPane.add(priorityLabel,0,10);
+        priorityLabel.getStyleClass().add("labelColor");
+
+        ChoiceBox<String> priorityInput = new ChoiceBox<>();
+        priorityInput.getItems().addAll("Low","Medium","High");
+        priorityInput.setValue("Low");
+        addPane.add(priorityInput,0,11);
+        priorityInput.setPrefWidth(120);
+        priorityInput.setPrefHeight(35);
+
+        Label tagLabel = new Label("Tag");
+        addPane.add(tagLabel,0,12);
+        tagLabel.getStyleClass().add("labelColor");
+
+        TextField tagInput = new TextField();
+        addPane.add(tagInput,0,13);
+        tagInput.setPrefWidth(120);
+        tagInput.setPrefHeight(35);
+        
+        Button addBtn = new Button("Add Task");
+        // addPane.add(addBtn,0,13);
+        addBtn.setPrefWidth(80);
+        addBtn.setPrefHeight(35);
+        addBtn.getStyleClass().add("btn");
+
+        Button closeBtn = new Button("Close");
+        // addPane.add(closeBtn,1,10);
+        closeBtn.setPrefWidth(80);
+        closeBtn.setPrefHeight(35);
+        // closeBtn.getStyleClass().add("btn");
+
+        HBox btnBox = new HBox(addBtn,closeBtn);
+        btnBox.setSpacing(5);
+        addPane.add(btnBox,0,14);
+
+        
+        addBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+              try{
                 Todolist.show(addStage); 
                 String taskName = taskInput.getText();
                 String description = descInput.getText();
-                String tagName = tagInput.getText();
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
                 LocalDate taskDate = dateInput.getValue();
                 String formatDate= taskDate.format(formatter);
+                String priority = priorityInput.getValue();
+                String hour = hourInput.getValue();
+                String minute = minuteInput.getValue();
+                int hourInt = Integer.parseInt(hour);
+                int minuteInt = Integer.parseInt(minute);
+                LocalTime time = LocalTime.of(hourInt, minuteInt);
+                String tag = tagInput.getText();
+                
+                int priorityId;
+
+                switch (priority) {
+                    case "Low":
+                        priorityId = 3;
+                        break;
+                    case "Medium":
+                        priorityId = 2;
+                        break;
+                    case "High":
+                        priorityId = 1;
+                        break;
+                    default:
+                        System.err.println("Invalid priority: " + priorityInput);
+                        priorityId = 3;
+                }
 
                 Connection connection = Dbconnect.getConnect();
-                String insertTaskQuery = "INSERT INTO task (user_id,priority_id,status_id,title,description,deadline) VALUES (1,1,10,?,?,?)";
-                String insertTagQuery = "INSERT INTO tag (task_id, name) VALUES (LAST_INSERT_ID(), ?)";
+                String insertTaskQuery = "INSERT INTO task (user_id,priority_id,title,description,deadline,time_work,label,new_priority_id) VALUES (?,?,?,?,?,?,?,?)";
+                // String insertTagQuery = "INSERT INTO tag (task_id, name) VALUES (LAST_INSERT_ID(), ?)";
                 PreparedStatement statement = connection.prepareStatement(insertTaskQuery);
 
-                statement.setString(1, taskName);
-                statement.setString(2, description);
-                // statement.setString(6, tagName);
-                statement.setString(3, formatDate);
+                statement.setInt(1,App.currentUserId);
+                statement.setInt(2, priorityId);
+                statement.setString(3, taskName);
+                statement.setString(4, description);
+                statement.setString(5, formatDate);
+                statement.setString(6, time.toString());
+                statement.setString(7,tag);
+                statement.setInt(8, priorityId);
 
                 // Execute the statement
                 statement.executeUpdate();
 
-                // Clear task input fields
-                // taskInput.clear();
-                descInput.clear();
-                // tagInput.clear();
-                // dateInput.clearDirty();
-            }catch(SQLException e){
+                Stage showStage = new Stage();
+                Todolist.show(showStage);
+                showStage.close();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Todolist.show(new Stage());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+              }
+              catch(SQLException e){
+                  e.printStackTrace();
+              }
+              catch (Exception e) {
                 e.printStackTrace();
-            }catch (Exception e) {
+              }
+            }
+        });
+
+
+        box.getChildren().addAll(addPane);
+        BorderPane.setAlignment(box, Pos.CENTER);
+        borderPane.setCenter(box);
+
+        Scene scene = new Scene(borderPane, 500, 768);
+        addStage.setTitle("Add Task");
+        addStage.setScene(scene);
+        addStage.show();
+    }
+
+// untuk menampilkan tugas
+  public static void show(Stage showStage) throws Exception{
+      BorderPane borderPane = new BorderPane();
+      borderPane.setPadding(new Insets(20,20,20,20));
+      borderPane.getStylesheets().add("/assets/showTaskStyle.css");
+
+      borderPane.getStyleClass().add("bgColor");
+
+      VBox box = new VBox();
+      box.setAlignment(Pos.CENTER);
+
+
+      // Header
+      Text holaText = new Text("Hola, ");
+      holaText.getStyleClass().add("nameText");
+      Text nameText = new Text();
+      // nameText.setText("Hola,Josh");
+      nameText.getStyleClass().add("nameText");
+      try{
+
+        Connection connection = Dbconnect.getConnect();
+        String sql = "SELECT username FROM user WHERE id =?";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setInt(1,App.currentUserId);
+        ResultSet rs = statement.executeQuery();
+        rs.next();
+        nameText.setText(rs.getString("username"));
+      }catch(Exception e){
+        e.printStackTrace();
+      }
+
+      HBox nameBox = new HBox(holaText,nameText);
+      Text dateText = new Text();
+      dateText.setText("15 Mar 2024");
+      dateText.getStyleClass().add("dateText");
+      Text timeText = new Text();
+      timeText.setText("08:00");
+      timeText.getStyleClass().add("dateText");
+
+      HBox dateBox = new HBox(dateText,timeText);
+      dateBox.setSpacing(3);
+      VBox profileBox = new VBox(nameBox,dateBox);
+
+      BorderPane.setAlignment(profileBox, Pos.TOP_LEFT);
+
+      Image missionImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Vector.png"));
+      Button missionBtn = new Button();
+      missionBtn.setGraphic(new ImageView(missionImg));
+      missionBtn.setPrefWidth(51);
+      missionBtn.setPrefHeight(51);
+      missionBtn.getStyleClass().add("btn");
+
+      missionBtn.setOnAction(new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+            try {
+                mission msn = new mission();
+                msn.showMission(new Stage());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     });
+      
+      Image profileImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/User_alt.png"));
+      Button profileBtn = new Button();
+      profileBtn.setGraphic(new ImageView(profileImg));
+      profileBtn.setPrefWidth(51);
+      profileBtn.setPrefHeight(51);
+      profileBtn.getStyleClass().add("btn");
 
-
-    box.getChildren().addAll(addPane);
-    BorderPane.setAlignment(box, Pos.CENTER);
-    borderPane.setCenter(box);
-
-    Scene scene = new Scene(borderPane, 500, 768);
-    addStage.setTitle("Add Task");
-    addStage.setScene(scene);
-    addStage.show();
-}
-
-// untuk menampilkan tugas
-public static void show(Stage showStage) throws Exception{
-    BorderPane borderPane = new BorderPane();
-    borderPane.setPadding(new Insets(20,20,20,20));
-    borderPane.getStylesheets().add("/assets/showTaskStyle.css");
-
-    borderPane.getStyleClass().add("bgColor");
-
-    VBox box = new VBox();
-    box.setAlignment(Pos.CENTER);
-
-
-    // Header
-    Text nameText = new Text();
-    nameText.setText("Hola,Josh");
-    nameText.getStyleClass().add("nameText");
-
-    Text dateText = new Text();
-    dateText.setText("15 Mar 2024");
-    dateText.getStyleClass().add("dateText");
-    Text timeText = new Text();
-    timeText.setText("08:00");
-    timeText.getStyleClass().add("dateText");
-
-    HBox dateBox = new HBox(dateText,timeText);
-    dateBox.setSpacing(3);
-    VBox profileBox = new VBox(nameText,dateBox);
-
-    BorderPane.setAlignment(profileBox, Pos.TOP_LEFT);
-
-    Image missionImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Vector.png"));
-    Button missionBtn = new Button();
-    missionBtn.setGraphic(new ImageView(missionImg));
-    missionBtn.setPrefWidth(51);
-    missionBtn.setPrefHeight(51);
-    missionBtn.getStyleClass().add("btn");
-
-    missionBtn.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent event) {
-          try {
-              mission msn = new mission();
-              msn.showMission(new Stage()); // Call the Todolist's add method to display the stage
-              // primaryStage.close(); // Close the login stage after successful login
-          } catch (Exception e) {
-              e.printStackTrace();
+      profileBtn.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
+              try {
+                  User user = new User();
+                  user.profile(new Stage());
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
           }
-      }
-  });
-    
-    Image profileImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/User_alt.png"));
-    Button profileBtn = new Button();
-    profileBtn.setGraphic(new ImageView(profileImg));
-    profileBtn.setPrefWidth(51);
-    profileBtn.setPrefHeight(51);
-    profileBtn.getStyleClass().add("btn");
+      });
 
-    profileBtn.setOnAction(new EventHandler<ActionEvent>() {
+      Image clockImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Clock.png"));
+      Button clockBtn = new Button();
+      clockBtn.setGraphic(new ImageView(clockImg));
+      clockBtn.setPrefWidth(51);
+      clockBtn.setPrefHeight(51);
+      clockBtn.getStyleClass().add("btn");
+
+      clockBtn.setOnAction(new EventHandler<ActionEvent>() {
         @Override
         public void handle(ActionEvent event) {
             try {
-                User user = new User();
-                user.profile(new Stage()); // Call the Todolist's add method to display the stage
+                Time time = new Time();
+                time.showTime(new Stage()); // Call the Todolist's add method to display the stage
                 // primaryStage.close(); // Close the login stage after successful login
             } catch (Exception e) {
                 e.printStackTrace();
@@ -253,346 +510,539 @@ public static void show(Stage showStage) throws Exception{
         }
     });
 
-    Image clockImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Clock.png"));
-    Button clockBtn = new Button();
-    clockBtn.setGraphic(new ImageView(clockImg));
-    clockBtn.setPrefWidth(51);
-    clockBtn.setPrefHeight(51);
-    clockBtn.getStyleClass().add("btn");
+      Image newTaskImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Add_ring.png"));
+      Button newTaskBtn = new Button("New Task");
+      newTaskBtn.setGraphic(new ImageView(newTaskImg));
+      newTaskBtn.setPrefWidth(149);
+      newTaskBtn.setPrefHeight(51);
+      newTaskBtn.getStyleClass().add("taskBtn");
 
-    Image newTaskImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Add_ring.png"));
-    Button newTaskBtn = new Button("New Task");
-    newTaskBtn.setGraphic(new ImageView(newTaskImg));
-    newTaskBtn.setPrefWidth(149);
-    newTaskBtn.setPrefHeight(51);
-    newTaskBtn.getStyleClass().add("taskBtn");
+      HBox btnBox = new HBox(missionBtn,profileBtn,clockBtn,newTaskBtn);
+      btnBox.setSpacing(10);
+      BorderPane.setAlignment(btnBox, Pos.TOP_RIGHT);
 
-    HBox btnBox = new HBox(missionBtn,profileBtn,clockBtn,newTaskBtn);
-    btnBox.setSpacing(10);
-    BorderPane.setAlignment(btnBox, Pos.TOP_RIGHT);
+      newTaskBtn.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
+              try {
+                  add(new Stage());
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          }
+      });
 
-    newTaskBtn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
+    
+      Text progressText = new Text("Task Progress");
+      progressText.getStyleClass().add("pTask");
+      ProgressBar taskProgressBar = new ProgressBar(0.4);
+      taskProgressBar.setPrefWidth(1280);
+      taskProgressBar.setPrefHeight(15);
+      VBox progressBox = new VBox(progressText,taskProgressBar);
+      progressBox.setSpacing(15);
+      HBox topBox = new HBox(profileBox, btnBox);
+      topBox.setSpacing(750);
+      VBox taskTopBox = new VBox(topBox, progressBox);
+      taskTopBox.setSpacing(20);
+      borderPane.setTop(taskTopBox);
+
+      // untuk active dan button filter
+      Text activeText = new Text("Active");
+      taskTopBox.setPadding(new Insets(0,0,20,0));
+      activeText.getStyleClass().add("pTask");
+      Button allBtn = new Button("All");
+      allBtn.setPrefWidth(51);
+      allBtn.setPrefHeight(42);
+      allBtn.getStyleClass().add("filterBtn");
+      Button lowBtn = new Button("Low");
+      lowBtn.setPrefWidth(63);
+      lowBtn.setPrefHeight(42);
+      lowBtn.getStyleClass().add("filterBtn");
+
+      Button medBtn = new Button("Medium");
+      medBtn.setPrefWidth(92);
+      medBtn.setPrefHeight(42);
+      medBtn.getStyleClass().add("filterBtn");
+      Button highBtn = new Button("High");
+      highBtn.setPrefWidth(68);
+      highBtn.setPrefHeight(42);
+      highBtn.getStyleClass().add("filterBtn");
+
+      HBox filterBox = new HBox(allBtn,lowBtn,medBtn,highBtn);
+      filterBox.setSpacing(10);
+      VBox activeBox = new VBox(activeText,filterBox);
+      activeBox.setSpacing(12);
+
+      VBox taskBox = new VBox();
+      taskBox.getChildren().addAll(activeBox);
+      BorderPane.setAlignment(activeBox,Pos.CENTER);
+      // borderPane.setCenter(taskBox);
+      taskBox.setSpacing(35);
+
+      Button targetButton = allBtn;
+
+      Platform.runLater(() -> {
+          targetButton.fire(); // Simulate a button click after UI setup
+      });
+
+      // untuk menampilkan tugas dengan semua priority
+      String[] tasksId = getTaskId();
+      String[] tasks = getTask();
+      String[] tasksLabel = getTasksLabel();
+      String[] tasksDesc = getTasksDesc();
+      String[] tasksDate = getTasksDate();
+      String[] tasksCategory = getTasksCategory();
+      String[] tasksNewCategory = getNewTasksCategory();
+
+      allBtn.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
             try {
-                add(new Stage());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    });
-
-    HBox topBox = new HBox(profileBox, btnBox);
-    borderPane.setTop(topBox);
-
-    // untuk active dan button filter
-    Text activeText = new Text("Active");
-    activeText.getStyleClass().add("pTask");
-    Button allBtn = new Button("All");
-    allBtn.setPrefWidth(51);
-    allBtn.setPrefHeight(42);
-    allBtn.getStyleClass().add("filterBtn");
-    Button lowBtn = new Button("Low");
-    lowBtn.setPrefWidth(63);
-    lowBtn.setPrefHeight(42);
-    lowBtn.getStyleClass().add("filterBtn");
-
-    Button medBtn = new Button("Medium");
-    medBtn.setPrefWidth(92);
-    medBtn.setPrefHeight(42);
-    medBtn.getStyleClass().add("filterBtn");
-    Button highBtn = new Button("High");
-    highBtn.setPrefWidth(68);
-    highBtn.setPrefHeight(42);
-    highBtn.getStyleClass().add("filterBtn");
-
-    HBox filterBox = new HBox(allBtn,lowBtn,medBtn,highBtn);
-    filterBox.setSpacing(10);
-    VBox activeBox = new VBox(activeText,filterBox);
-    activeBox.setSpacing(12);
-
-    VBox taskBox = new VBox();
-    taskBox.getChildren().addAll(activeBox);
-    BorderPane.setAlignment(activeBox,Pos.CENTER);
-    // borderPane.setCenter(taskBox);
-    taskBox.setSpacing(35);
-
-    Button targetButton = allBtn;
-
-    Platform.runLater(() -> {
-        targetButton.fire(); // Simulate a button click after UI setup
-    });
-
-    // untuk menampilkan tugas dengan semua priority
-    allBtn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-          try {
-            String[] tasks = {"Conduct User", "Finalize Content", "Implement SEO"};
-            String[] tasksLabel = {"Testing", "Coding", "SEO"};
-            String[] tasksDesc = {"Coordinate UAT", "Develop front-end", "Optimize website for search engines"};
-            String[] tasksDate = {"April 15, 2024", "April 20, 2024", "April 25, 2024"};
-            String[] tasksCategory = {"low", "medium", "high", "done"};
-    
-            VBox taskMainBox = new VBox(10);
-            Text priorityText = new Text("Priority");
-            priorityText.getStyleClass().add("pTask");
-            VBox taskBoxMain = new VBox(10);
-            taskMainBox.getChildren().clear();
-            // **Execute the for loop only when lowBtn is clicked**
-            for (int i = 0; i < tasks.length; i++) {
-              if (tasksCategory[i].equals("low") || tasksCategory[i].equals("medium") || tasksCategory[i].equals("high")) {
-                CheckBox cb = new CheckBox();
-            cb.getStyleClass().add("check-box");
-            cb.setAlignment(Pos.CENTER);
-            Text task1Text = new Text(tasks[i]);
-            task1Text.getStyleClass().add("pTask");
-            Label taskLabel = new Label(tasksLabel[i]);
-            taskLabel.getStyleClass().add("taskLabel");
-            Text desText = new Text(tasksDesc[i]);
-            desText.getStyleClass().add("descText");
-            Text time1Text = new Text(tasksDate[i]);
-            time1Text.getStyleClass().add("timeText");
-            
-            HBox taskPBox = new HBox(10);
-            HBox taskDescBox = new HBox(10);
-            VBox priorityTaskBox = new VBox();
-            HBox priorityBox = new HBox(10);
-            priorityBox.setAlignment(Pos.CENTER_LEFT);
-
-            taskPBox.getChildren().addAll(task1Text, taskLabel);
-            taskDescBox.getChildren().addAll(desText, time1Text);
-            priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
-            priorityBox.getChildren().addAll(cb, priorityTaskBox);
-            taskBoxMain.getChildren().add(priorityBox);
-              }
-            }
-            // untuk menampilkan semua tugas dengan tingkat priority low,medium,high
-            taskBox.getChildren().clear();
-            taskBox.getChildren().addAll(activeBox);
-            taskBox.getChildren().addAll(taskBoxMain);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-      });
-
-    // untuk menampilkan tugas dengan tingkat priority low
-    lowBtn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-          try {
-            String[] tasks = {"Conduct User", "Finalize Content", "Implement SEO"};
-            String[] tasksLabel = {"Testing", "Coding", "SEO"};
-            String[] tasksDesc = {"Coordinate UAT", "Develop front-end", "Optimize website for search engines"};
-            String[] tasksDate = {"April 15, 2024", "April 20, 2024", "April 25, 2024"};
-            String[] tasksCategory = {"low", "medium", "high", "done"};
-    
-            VBox taskMainBox = new VBox(10);
-            Text priorityText = new Text("Priority");
-            priorityText.getStyleClass().add("pTask");
-            VBox taskBoxMain = new VBox(10);
-            taskMainBox.getChildren().clear();
-            // **Execute the for loop only when lowBtn is clicked**
-            for (int i = 0; i < tasks.length; i++) {
-              if (tasksCategory[i].equals("low")) {
-                CheckBox cb = new CheckBox();
-            cb.getStyleClass().add("check-box");
-            cb.setAlignment(Pos.CENTER);
-            Text task1Text = new Text(tasks[i]);
-            task1Text.getStyleClass().add("pTask");
-            Label taskLabel = new Label(tasksLabel[i]);
-            taskLabel.getStyleClass().add("taskLabel");
-            Text desText = new Text(tasksDesc[i]);
-            desText.getStyleClass().add("descText");
-            Text time1Text = new Text(tasksDate[i]);
-            time1Text.getStyleClass().add("timeText");
-            
-            HBox taskPBox = new HBox(10);
-            HBox taskDescBox = new HBox(10);
-            VBox priorityTaskBox = new VBox();
-            HBox priorityBox = new HBox(10);
-            priorityBox.setAlignment(Pos.CENTER_LEFT);
-
-            taskPBox.getChildren().addAll(task1Text, taskLabel);
-            taskDescBox.getChildren().addAll(desText, time1Text);
-            priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
-            priorityBox.getChildren().addAll(cb, priorityTaskBox);
-            taskBoxMain.getChildren().add(priorityBox);
-              }
-            }
-            // untuk menghapus semua isi taskBox
-            taskBox.getChildren().clear();
-            taskBox.getChildren().addAll(activeBox);
-            taskBox.getChildren().addAll(taskBoxMain);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-      });
-
-      //// untuk menampilkan tugas dengan tingkat priority medium
-      medBtn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-          try {
-            String[] tasks = {"Conduct User", "Finalize Content", "Implement SEO"};
-            String[] tasksLabel = {"Testing", "Coding", "SEO"};
-            String[] tasksDesc = {"Coordinate UAT", "Develop front-end", "Optimize website for search engines"};
-            String[] tasksDate = {"April 15, 2024", "April 20, 2024", "April 25, 2024"};
-            String[] tasksCategory = {"low", "medium", "high", "done"};
-    
-            VBox taskMainBox = new VBox(10);
-            Text priorityText = new Text("Priority");
-            priorityText.getStyleClass().add("pTask");
-            VBox taskBoxMain = new VBox(10);
-    
-            // **Execute the for loop only when lowBtn is clicked**
-            for (int i = 0; i < tasks.length; i++) {
-              if (tasksCategory[i].equals("medium")) {
-                CheckBox cb = new CheckBox();
-            cb.getStyleClass().add("check-box");
-            cb.setAlignment(Pos.CENTER);
-            Text task1Text = new Text(tasks[i]);
-            task1Text.getStyleClass().add("pTask");
-            Label taskLabel = new Label(tasksLabel[i]);
-            taskLabel.getStyleClass().add("taskLabel");
-            Text desText = new Text(tasksDesc[i]);
-            desText.getStyleClass().add("descText");
-            Text time1Text = new Text(tasksDate[i]);
-            time1Text.getStyleClass().add("timeText");
-            
-            HBox taskPBox = new HBox(10);
-            HBox taskDescBox = new HBox(10);
-            VBox priorityTaskBox = new VBox();
-            HBox priorityBox = new HBox(10);
-            priorityBox.setAlignment(Pos.CENTER_LEFT);
-
-            taskPBox.getChildren().addAll(task1Text, taskLabel);
-            taskDescBox.getChildren().addAll(desText, time1Text);
-            priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
-            priorityBox.getChildren().addAll(cb, priorityTaskBox);
-            taskBoxMain.getChildren().add(priorityBox);
-              }
-            }
-            // untuk menghapus semua isi taskBox
-            taskBox.getChildren().clear();
-            taskBox.getChildren().addAll(activeBox);
-            taskBox.getChildren().addAll(taskBoxMain);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-      });
-
-      // untuk menampilkan tugas dengan tingkat priority high
-      highBtn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-          try {
-            String[] tasks = {"Conduct User", "Finalize Content", "Implement SEO","Develop Admin"};
-            String[] tasksLabel = {"Testing", "Coding", "SEO","Coding"};
-            String[] tasksDesc = {"Coordinate UAT", "Develop front-end", "Optimize website for search engines","Design and develop"};
-            String[] tasksDate = {"April 15, 2024", "April 20, 2024", "April 25, 2024","April 30, 2024"};
-            String[] tasksCategory = {"low", "medium", "high", "done"};
-
-            
-            VBox taskMainBox = new VBox(10);
-            Text priorityText = new Text("Priority");
-            priorityText.getStyleClass().add("pTask");
-            VBox taskBoxMain = new VBox(10);
-
-            taskMainBox.getChildren().clear();
-    
-            // **Execute the for loop only when lowBtn is clicked**
-            for (int i = 0; i < tasks.length; i++) {
-              if (tasksCategory[i].equals("high")) {
-                Button cb = new Button();
-            cb.getStyleClass().add("check-box");
-            cb.setAlignment(Pos.CENTER);
-            Text task1Text = new Text(tasks[i]);
-            task1Text.getStyleClass().add("pTask");
-            Label taskLabel = new Label(tasksLabel[i]);
-            taskLabel.getStyleClass().add("taskLabel");
-            Text desText = new Text(tasksDesc[i]);
-            desText.getStyleClass().add("descText");
-            Text time1Text = new Text(tasksDate[i]);
-            time1Text.getStyleClass().add("timeText");
-            
-            HBox taskPBox = new HBox(10);
-            HBox taskDescBox = new HBox(10);
-            VBox priorityTaskBox = new VBox();
-            HBox priorityBox = new HBox(10);
-            priorityBox.setAlignment(Pos.CENTER_LEFT);
-
-            taskPBox.getChildren().addAll(task1Text, taskLabel);
-            taskDescBox.getChildren().addAll(desText, time1Text);
-            priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
-            priorityBox.getChildren().addAll(cb, priorityTaskBox);
-
-            taskBoxMain.getChildren().add(priorityBox);
-              }
-            }
-            // untuk menghapus semua isi taskBox
-            taskBox.getChildren().clear();
-            taskBox.getChildren().addAll(activeBox);
-            taskBox.getChildren().addAll(taskBoxMain);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        }
-      });
-      Text doneText = new Text("Done");
-      doneText.getStyleClass().add("pTask");
       
-      String[] tasks = {"Conduct User", "Finalize Content", "Implement SEO","Develop Admin"};
-      String[] tasksLabel = {"Testing", "Coding", "SEO","Coding"};
-      String[] tasksDesc = {"Coordinate UAT", "Develop front-end", "Optimize website for search engines","Design and develop"};
-      String[] tasksDate = {"April 15, 2024", "April 20, 2024", "April 25, 2024","April 30, 2024"};
-      String[] tasksCategory = {"low", "medium", "high", "done"};
-      
-      // Untuk menampilkan tugas dengan kategori priority
-      
-      VBox taskMainBox = new VBox(10);
-      VBox taskBoxMain = new VBox(10);
-      
-      for (int i = 0; i < tasks.length; i++) {
-          if(tasksCategory[i].equals("done")){
-              CheckBox cb = new CheckBox();
+              VBox taskMainBox = new VBox(10);
+              Text priorityText = new Text("Priority");
+              priorityText.getStyleClass().add("pTask");
+              VBox taskBoxMain = new VBox(10);
+              taskMainBox.getChildren().clear();
+              // **Execute the for loop only when lowBtn is clicked**
+              for (int i = 0; i < tasks.length; i++) {
+                int index = i;
+                if (tasksNewCategory[i].equals("1") || tasksNewCategory[i].equals("2") || tasksNewCategory[i].equals("3")) {
+                  CheckBox cb = new CheckBox();
               cb.getStyleClass().add("check-box");
               cb.setAlignment(Pos.CENTER);
               Text task1Text = new Text(tasks[i]);
-              task1Text.getStyleClass().add("taskDoneText");
+              task1Text.getStyleClass().add("pTask");
+              Label taskLabel = new Label(tasksLabel[i]);
+              taskLabel.getStyleClass().add("taskLabel");
               Text desText = new Text(tasksDesc[i]);
               desText.getStyleClass().add("descText");
+              Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclock@2x.png"));
+              ImageView timeImg = new ImageView(clockTime);
+              timeImg.setFitHeight(24);
+              timeImg.setFitWidth(24);
               Text time1Text = new Text(tasksDate[i]);
-              time1Text.getStyleClass().add("timeDoneText");
+              time1Text.getStyleClass().add("timeText");
+              HBox timeImgTextBox = new HBox(timeImg,time1Text);
+              timeImgTextBox.setSpacing(3);            
               
               HBox taskPBox = new HBox(10);
               HBox taskDescBox = new HBox(10);
               VBox priorityTaskBox = new VBox();
               HBox priorityBox = new HBox(10);
               priorityBox.setAlignment(Pos.CENTER_LEFT);
-              
-              taskPBox.getChildren().addAll(task1Text);
-              taskDescBox.getChildren().addAll(desText, time1Text);
+
+              taskPBox.getChildren().addAll(task1Text, taskLabel);
+              taskDescBox.getChildren().addAll(desText, timeImgTextBox);
               priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
               taskBoxMain.getChildren().add(priorityBox);
+
               
+              cb.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                  // Update UI based on current selection
+                  boolean isSelected = cb.isSelected();
+                    if(isSelected)
+                    {
+                      tasksNewCategory[index] = "4";
+
+                      Connection connection = Dbconnect.getConnect();
+                      String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                      try {
+                        PreparedStatement statement = connection.prepareStatement(sql);
+                        statement.executeUpdate();
+                        showStage.close();
+                        Platform.runLater(new Runnable(){
+                          @Override
+                          public void run() {
+                            try{
+                              Todolist.show(new Stage());
+                            }catch(Exception e){
+                              e.printStackTrace();
+                            }
+                          }
+                        });
+
+                      } catch (SQLException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                      }
+                    }
+                  }
+              });
+
+              }
             }
-        }
+              // untuk menampilkan semua tugas dengan tingkat priority low,medium,high
+              taskBox.getChildren().clear();
+              taskBox.getChildren().addAll(activeBox);
+              taskBox.getChildren().addAll(taskBoxMain);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
+        });
+
+      lowBtn.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
+            try {
+      
+              VBox taskMainBox = new VBox(10);
+              Text priorityText = new Text("Priority");
+              priorityText.getStyleClass().add("pTask");
+              VBox taskBoxMain = new VBox(10);
+              taskMainBox.getChildren().clear();
+              // **Execute the for loop only when lowBtn is clicked**
+              for (int i = 0; i < tasks.length; i++) {
+                int index = i;
+                if (tasksNewCategory[i].equals("1")) {
+                  CheckBox cb = new CheckBox();
+                  cb.getStyleClass().add("check-box");
+                  cb.setAlignment(Pos.CENTER);
+                  Text task1Text = new Text(tasks[i]);
+                  task1Text.getStyleClass().add("pTask");
+                  Label taskLabel = new Label(tasksLabel[i]);
+                  taskLabel.getStyleClass().add("taskLabel");
+                  Text desText = new Text(tasksDesc[i]);
+                  desText.getStyleClass().add("descText");
+                  Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclock@2x.png"));
+                  ImageView timeImg = new ImageView(clockTime);
+                  timeImg.setFitHeight(24);
+                  timeImg.setFitWidth(24);
+                  Text time1Text = new Text(tasksDate[i]);
+                  time1Text.getStyleClass().add("timeText");
+                  HBox timeImgTextBox = new HBox(timeImg,time1Text);
+                  timeImgTextBox.setSpacing(3);            
+                  
+                  HBox taskPBox = new HBox(10);
+                  HBox taskDescBox = new HBox(10);
+                  VBox priorityTaskBox = new VBox();
+                  HBox priorityBox = new HBox(10);
+                  priorityBox.setAlignment(Pos.CENTER_LEFT);
+
+                  taskPBox.getChildren().addAll(task1Text, taskLabel);
+                  taskDescBox.getChildren().addAll(desText, timeImgTextBox);
+                  priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+                  priorityBox.getChildren().addAll(cb, priorityTaskBox);
+                  taskBoxMain.getChildren().add(priorityBox);
+
+                  cb.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                      // Update UI based on current selection
+                      boolean isSelected = cb.isSelected();
+                        if(isSelected)
+                        {
+                          tasksNewCategory[index] = "4";
+    
+                          Connection connection = Dbconnect.getConnect();
+                          String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                          try {
+                            PreparedStatement statement = connection.prepareStatement(sql);
+                            statement.executeUpdate();
+                            showStage.close();
+                            Platform.runLater(new Runnable(){
+                              @Override
+                              public void run() {
+                                try{
+                                  Todolist.show(new Stage());
+                                }catch(Exception e){
+                                  e.printStackTrace();
+                                }
+                              }
+                            });
+    
+                          } catch (SQLException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                          }
+                        }
+                      }
+                  });
+    
+                }
+              }
+              // untuk menghapus semua isi taskBox
+              taskBox.getChildren().clear();
+              taskBox.getChildren().addAll(activeBox);
+              taskBox.getChildren().addAll(taskBoxMain);
+
+              
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
+        });
+
+        //// untuk menampilkan tugas dengan tingkat priority medium
+        medBtn.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
+            try {
+              Text priorityText = new Text("Priority");
+              priorityText.getStyleClass().add("pTask");
+              VBox taskBoxMain = new VBox(10);
+      
+              // **Execute the for loop only when lowBtn is clicked**
+              for (int i = 0; i < tasks.length; i++) {
+                int index = i;
+                if (tasksNewCategory[i].equals("2")) {
+                  CheckBox cb = new CheckBox();
+              cb.getStyleClass().add("check-box");
+              cb.setAlignment(Pos.CENTER);
+              Text task1Text = new Text(tasks[i]);
+              task1Text.getStyleClass().add("pTask");
+              Label taskLabel = new Label(tasksLabel[i]);
+              taskLabel.getStyleClass().add("taskLabel");
+              Text desText = new Text(tasksDesc[i]);
+              desText.getStyleClass().add("descText");
+              Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclock@2x.png"));
+              ImageView timeImg = new ImageView(clockTime);
+              timeImg.setFitHeight(24);
+              timeImg.setFitWidth(24);
+              Text time1Text = new Text(tasksDate[i]);
+              time1Text.getStyleClass().add("timeText");
+              HBox timeImgTextBox = new HBox(timeImg,time1Text);
+              timeImgTextBox.setSpacing(3);            
+              
+              HBox taskPBox = new HBox(10);
+              HBox taskDescBox = new HBox(10);
+              VBox priorityTaskBox = new VBox();
+              HBox priorityBox = new HBox(10);
+              priorityBox.setAlignment(Pos.CENTER_LEFT);
+
+              taskPBox.getChildren().addAll(task1Text, taskLabel);
+              taskDescBox.getChildren().addAll(desText, timeImgTextBox);
+              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+              priorityBox.getChildren().addAll(cb, priorityTaskBox);
+              taskBoxMain.getChildren().add(priorityBox);
+
+              
+              cb.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                  // Update UI based on current selection
+                  boolean isSelected = cb.isSelected();
+                    if(isSelected)
+                    {
+                      tasksNewCategory[index] = "4";
+
+                      Connection connection = Dbconnect.getConnect();
+                      String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                      try {
+                        PreparedStatement statement = connection.prepareStatement(sql);
+                        statement.executeUpdate();
+                        showStage.close();
+                        Platform.runLater(new Runnable(){
+                          @Override
+                          public void run() {
+                            try{
+                              Todolist.show(new Stage());
+                            }catch(Exception e){
+                              e.printStackTrace();
+                            }
+                          }
+                        });
+
+                      } catch (SQLException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                      }
+                    }
+                  }
+              });
+                }
+              }
+              // untuk menghapus semua isi taskBox
+              taskBox.getChildren().clear();
+              taskBox.getChildren().addAll(activeBox);
+              taskBox.getChildren().addAll(taskBoxMain);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
+        });
+
+        // untuk menampilkan tugas dengan tingkat priority high
+        highBtn.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
+            try {
+              
+              VBox taskMainBox = new VBox(10);
+              Text priorityText = new Text("Priority");
+              priorityText.getStyleClass().add("pTask");
+              VBox taskBoxMain = new VBox(10);
+
+              taskMainBox.getChildren().clear();
+      
+              // **Execute the for loop only when lowBtn is clicked**
+              for (int i = 0; i < tasks.length; i++) {
+                int index = i;
+                if (tasksNewCategory[i].equals("1")) {
+                  CheckBox cb = new CheckBox();
+                  cb.getStyleClass().add("check-box");
+                  cb.setAlignment(Pos.CENTER);
+                  Text task1Text = new Text(tasks[i]);
+                  task1Text.getStyleClass().add("pTask");
+                  Label taskLabel = new Label(tasksLabel[i]);
+                  taskLabel.getStyleClass().add("taskLabel");
+                  Text desText = new Text(tasksDesc[i]);
+                  desText.getStyleClass().add("descText");
+                  Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclock@2x.png"));
+                  ImageView timeImg = new ImageView(clockTime);
+                  timeImg.setFitHeight(24);
+                  timeImg.setFitWidth(24);
+                  Text time1Text = new Text(tasksDate[i]);
+                  time1Text.getStyleClass().add("timeText");
+                  HBox timeImgTextBox = new HBox(timeImg,time1Text);
+                  timeImgTextBox.setSpacing(3);            
+                  
+                  HBox taskPBox = new HBox(10);
+                  HBox taskDescBox = new HBox(10);
+                  VBox priorityTaskBox = new VBox();
+                  HBox priorityBox = new HBox(10);
+                  priorityBox.setAlignment(Pos.CENTER_LEFT);
+
+                  taskPBox.getChildren().addAll(task1Text, taskLabel);
+                  taskDescBox.getChildren().addAll(desText, timeImgTextBox);
+                  priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+                  priorityBox.getChildren().addAll(cb, priorityTaskBox);
+                  taskBoxMain.getChildren().add(priorityBox);
+
+                  
+              cb.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                  // Update UI based on current selection
+                  boolean isSelected = cb.isSelected();
+                    if(isSelected)
+                    {
+                      tasksNewCategory[index] = "4";
+
+                      Connection connection = Dbconnect.getConnect();
+                      String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                      try {
+                        PreparedStatement statement = connection.prepareStatement(sql);
+                        statement.executeUpdate();
+                        showStage.close();
+                        Platform.runLater(new Runnable(){
+                          @Override
+                          public void run() {
+                            try{
+                              Todolist.show(new Stage());
+                            }catch(Exception e){
+                              e.printStackTrace();
+                            }
+                          }
+                        });
+
+                      } catch (SQLException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                      }
+                    }
+                  }
+              });
+                }
+              }
+              // untuk menghapus semua isi taskBox
+              taskBox.getChildren().clear();
+              taskBox.getChildren().addAll(activeBox);
+              taskBox.getChildren().addAll(taskBoxMain);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
+        });
+        Text doneText = new Text("Done");
+        doneText.getStyleClass().add("pTask");
         
-        taskMainBox.getChildren().addAll(taskBoxMain);
+        VBox taskMainBox = new VBox(10);
+        VBox taskBoxMain = new VBox(10);
         
-        
-        VBox centerTaskBox = new VBox(taskBox,doneText,taskMainBox);
-        borderPane.setCenter(centerTaskBox);
-        
-        
-    Scene scene = new Scene(borderPane, 1280, 768);
-    showStage.setTitle("Task");
-    showStage.setScene(scene);
-    showStage.show();
-}
+        for (int i = 0; i < tasks.length; i++) {
+          int index = i;
+            if(tasksNewCategory[i].equals("4")){
+                CheckBox cb = new CheckBox();
+                cb.setSelected(true);
+                cb.getStyleClass().add("check-box");
+                cb.setAlignment(Pos.CENTER);
+                Text task1Text = new Text(tasks[i]);
+                task1Text.getStyleClass().add("taskDoneText");
+                Text desText = new Text(tasksDesc[i]);
+                desText.getStyleClass().add("descText");
+                Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclockgrey.png"));
+                ImageView timeImg = new ImageView(clockTime);
+                timeImg.setFitHeight(24);
+                timeImg.setFitWidth(24);
+                Text time1Text = new Text(tasksDate[i]);
+                time1Text.getStyleClass().add("timeDoneText");
+                HBox timeImgTextBox = new HBox(timeImg,time1Text);
+                timeImgTextBox.setSpacing(3);            
+                
+                HBox taskPBox = new HBox(10);
+                HBox taskDescBox = new HBox(10);
+                VBox priorityTaskBox = new VBox();
+                HBox priorityBox = new HBox(10);
+                priorityBox.setAlignment(Pos.CENTER_LEFT);
+
+                taskPBox.getChildren().addAll(task1Text);
+                taskDescBox.getChildren().addAll(desText, timeImgTextBox);
+                priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+                priorityBox.getChildren().addAll(cb, priorityTaskBox);
+                taskBoxMain.getChildren().add(priorityBox);
+
+                cb.setOnAction(new EventHandler<ActionEvent>() {
+                  @Override
+                  public void handle(ActionEvent event) {
+                    // Update UI based on current selection
+                    boolean isSelected = cb.isSelected();
+                      if(!isSelected)
+                      {
+                        // tasksNewCategory[index] = "4";
+  
+                        Connection connection = Dbconnect.getConnect();
+                        String sql = "UPDATE task SET new_priority_id = '" + tasksCategory[index] + "' WHERE id = '" + tasksId[index] + "'";
+                        try {
+                          PreparedStatement statement = connection.prepareStatement(sql);
+                          statement.executeUpdate();
+                          showStage.close();
+                          Platform.runLater(new Runnable(){
+                            @Override
+                            public void run() {
+                              try{
+                                Todolist.show(new Stage());
+                              }catch(Exception e){
+                                e.printStackTrace();
+                              }
+                            }
+                          });
+  
+                        } catch (SQLException e) {
+                          // TODO Auto-generated catch block
+                          e.printStackTrace();
+                        }
+                      }
+                    }
+                });
+                
+              }
+          }
+          
+          taskMainBox.getChildren().addAll(taskBoxMain);
+          
+          
+          VBox centerTaskBox = new VBox(taskBox,doneText,taskMainBox);
+          borderPane.setCenter(centerTaskBox);   
+          
+          
+      Scene scene = new Scene(borderPane, 1280, 768);
+      showStage.setTitle("Task");
+      showStage.setScene(scene);
+      showStage.show();
+  }
 }
