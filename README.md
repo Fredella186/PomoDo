@@ -11,6 +11,6 @@ To support the performance of freelancers, PomoDo is equipped with the following
 - Labels and priority: Simplify the process of dividing and working on tasks by differentiating tasks based on labels and priority.
 
 ## Team Member 👥
-Calvin Tai (https://www.linkedin.com/in/calvin-tai-824450223/)
-Clay Aiken (https://www.linkedin.com/in/clayaiken-id/)
-Fredella Cornelia Chok (https://www.linkedin.com/in/fredella-cornelia-7568a1249/)
+- Calvin Tai (https://www.linkedin.com/in/calvin-tai-824450223/)
+- Clay Aiken (https://www.linkedin.com/in/clayaiken-id/)
+- Fredella Cornelia Chok (https://www.linkedin.com/in/fredella-cornelia-7568a1249/)
