@@ -41,7 +41,7 @@ public class User {
 
         try{
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT username FROM user WHERE id =?";
+            String sql = "SELECT username FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1,App.currentUserId);
             ResultSet rs = statement.executeQuery();
@@ -64,7 +64,7 @@ public class User {
 
         try{
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT email FROM user WHERE id =?";
+            String sql = "SELECT email FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1,App.currentUserId);
             ResultSet rs = statement.executeQuery();
@@ -151,7 +151,7 @@ public class User {
 
         try{
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT username FROM user WHERE id =?";
+            String sql = "SELECT username FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1,App.currentUserId);
             ResultSet rs = statement.executeQuery();
@@ -173,7 +173,7 @@ public class User {
 
         try{
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT email FROM user WHERE id =?";
+            String sql = "SELECT email FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1,App.currentUserId);
             ResultSet rs = statement.executeQuery();
@@ -224,7 +224,7 @@ public class User {
                     String email = emailField.getText();
 
                     Connection connection = Dbconnect.getConnect();
-                    String sql = "UPDATE user SET username =?, email =? WHERE id =?";
+                    String sql = "UPDATE users SET username =?, email =? WHERE id =?";
                     PreparedStatement statement = connection.prepareStatement(sql);
                     statement.setString(1,username);
                     statement.setString(2,email);
@@ -330,7 +330,7 @@ public class User {
                     Connection connection = Dbconnect.getConnect();
                     
                     if(newPass.equals(newPass2)){
-                        String sqlPass = "SELECT password FROM user WHERE id=?";
+                        String sqlPass = "SELECT password FROM users WHERE id=?";
                         PreparedStatement statement = connection.prepareStatement(sqlPass);
                         statement.setInt(1,App.currentUserId);
                         ResultSet rs = statement.executeQuery();
@@ -340,7 +340,7 @@ public class User {
                             String storedHashedPass = rs.getString("password");
                             if(hashedCurrentPass.equals(storedHashedPass))
                             {
-                                String sqlUpdate = "UPDATE user SET password=? WHERE id=?";
+                                String sqlUpdate = "UPDATE users SET password=? WHERE id=?";
                                 PreparedStatement statement2 = connection.prepareStatement(sqlUpdate);
                                 statement2.setString(1,hashedNewPass);
                                 statement2.setInt(2,App.currentUserId);

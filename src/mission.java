@@ -11,6 +11,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class mission {
+    
     public static void showMission(Stage showMissionStage) throws Exception{
         BorderPane borderPane = new BorderPane();
         borderPane.getStylesheets().add("/assets/missionStyle.css");

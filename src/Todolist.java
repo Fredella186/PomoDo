@@ -3,6 +3,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class Todolist {
     public static String[] getTaskId() throws SQLException {
 
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT id FROM task WHERE user_id = ?"; 
+        String sql = "SELECT id FROM tasks WHERE user_id = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
 
@@ -73,7 +74,7 @@ public class Todolist {
 
     public static String[] getTask() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT title FROM task WHERE user_id = ?"; 
+        String sql = "SELECT title FROM tasks WHERE user_id = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -98,7 +99,7 @@ public class Todolist {
 
     public static String[] getTasksLabel() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT label FROM task WHERE user_id = ?"; 
+        String sql = "SELECT label FROM tasks WHERE user_id = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -123,7 +124,7 @@ public class Todolist {
 
     public static String[] getTasksDesc() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT description FROM task WHERE user_id = ?"; 
+        String sql = "SELECT description FROM tasks WHERE user_id = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -148,7 +149,7 @@ public class Todolist {
 
     public static String[] getTasksCategory() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT priority_id FROM task WHERE user_id = ?"; 
+        String sql = "SELECT priority_id FROM tasks WHERE user_id = ?"; 
         // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.user_id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
@@ -174,7 +175,7 @@ public class Todolist {
 
     public static String[] getNewTasksCategory() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT new_priority_id FROM task WHERE user_id = ?"; 
+        String sql = "SELECT new_priority_id FROM tasks WHERE user_id = ?"; 
         // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.user_id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
@@ -200,7 +201,7 @@ public class Todolist {
 
     public static String[] getTasksDate() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT deadline FROM task WHERE user_id = ?"; 
+        String sql = "SELECT deadline FROM tasks WHERE user_id = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -225,7 +226,7 @@ public class Todolist {
 
     public static String[] getTasksClock() throws SQLException {
       Connection connection = Dbconnect.getConnect();
-      String sql = "SELECT time_work FROM task WHERE user_id = ?"; 
+      String sql = "SELECT time_work FROM tasks WHERE user_id = ?"; 
       PreparedStatement statement = connection.prepareStatement(sql);
       statement.setInt(1, App.currentUserId);
   
@@ -360,6 +361,9 @@ public class Todolist {
                 int minuteInt = Integer.parseInt(minute);
                 LocalTime time = LocalTime.of(hourInt, minuteInt);
                 String tag = tagInput.getText();
+                LocalDate now = LocalDate.now();
+                // System.out.print(now);
+                String nowDate = now.format(formatter);
                 
                 int priorityId;
 
@@ -379,7 +383,7 @@ public class Todolist {
                 }
 
                 Connection connection = Dbconnect.getConnect();
-                String insertTaskQuery = "INSERT INTO task (user_id,priority_id,title,description,deadline,time_work,label,new_priority_id) VALUES (?,?,?,?,?,?,?,?)";
+                String insertTaskQuery = "INSERT INTO tasks (user_id,priority_id,title,description,deadline,time_work,label,new_priority_id,date_task_created) VALUES (?,?,?,?,?,?,?,?,?)";
                 // String insertTagQuery = "INSERT INTO tag (task_id, name) VALUES (LAST_INSERT_ID(), ?)";
                 PreparedStatement statement = connection.prepareStatement(insertTaskQuery);
 
@@ -391,18 +395,19 @@ public class Todolist {
                 statement.setString(6, time.toString());
                 statement.setString(7,tag);
                 statement.setInt(8, priorityId);
+                statement.setString(9, nowDate);
 
                 // Execute the statement
                 statement.executeUpdate();
-                addStage.close();
                 // Stage showStage = new Stage();
                 // Todolist.show(showStage);
                 // showStage.close();
                 Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Todolist.show(new Stage());
+                  @Override
+                  public void run() {
+                    try {
+                      Todolist.show(new Stage());
+                      addStage.close();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -450,7 +455,7 @@ public class Todolist {
       try{
 
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT username FROM user WHERE id =?";
+        String sql = "SELECT username FROM users WHERE id =?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1,App.currentUserId);
         ResultSet rs = statement.executeQuery();
@@ -668,7 +673,7 @@ public class Todolist {
                   priorityBox.getChildren().addAll(cb, priorityTaskBox);
                   taskBoxMain.getChildren().add(priorityBox);
 
-                  taskBoxMain.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                  task1Text.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent mouseEvent) {
                         // Get details of the task based on tasksId[index]
@@ -692,7 +697,7 @@ public class Todolist {
                         tasksNewCategory[index] = "4";
 
                         Connection connection = Dbconnect.getConnect();
-                        String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                        String sql = "UPDATE tasks SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
                         try {
                           PreparedStatement statement = connection.prepareStatement(sql);
                           statement.executeUpdate();
@@ -751,7 +756,7 @@ public class Todolist {
                     taskLabel.getStyleClass().add("taskLabel");
                     Text desText = new Text(tasksDesc[i]);
                     desText.getStyleClass().add("descText");
-                    Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclock@2x.png"));
+                    Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Calendar.png"));
                     ImageView timeImg = new ImageView(clockTime);
                     timeImg.setFitHeight(24);
                     timeImg.setFitWidth(24);
@@ -766,7 +771,9 @@ public class Todolist {
                     Text clock1Text = new Text(tasksClock[i]);
                     clock1Text.getStyleClass().add("timeText");
                     HBox clockImgTextBox = new HBox(calImg,clock1Text);
-                    clockImgTextBox.setSpacing(3);            
+                    clockImgTextBox.setSpacing(3);           
+                    
+                    
                 
                   HBox taskPBox = new HBox(10);
                   HBox taskDescBox = new HBox(10);
@@ -790,7 +797,7 @@ public class Todolist {
                             tasksNewCategory[index] = "4";
       
                             Connection connection = Dbconnect.getConnect();
-                            String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                            String sql = "UPDATE tasks SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
                             try {
                               PreparedStatement statement = connection.prepareStatement(sql);
                               statement.executeUpdate();
@@ -847,7 +854,7 @@ public class Todolist {
                 taskLabel.getStyleClass().add("taskLabel");
                 Text desText = new Text(tasksDesc[i]);
                 desText.getStyleClass().add("descText");
-                Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclock@2x.png"));
+                Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Calendar.png"));
                 ImageView timeImg = new ImageView(clockTime);
                 timeImg.setFitHeight(24);
                 timeImg.setFitWidth(24);
@@ -886,7 +893,7 @@ public class Todolist {
                       {
                         tasksNewCategory[index] = "4";
                         Connection connection = Dbconnect.getConnect();
-                        String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                        String sql = "UPDATE tasks SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
                         try {
                           PreparedStatement statement = connection.prepareStatement(sql);
                           statement.executeUpdate();
@@ -945,7 +952,7 @@ public class Todolist {
                     taskLabel.getStyleClass().add("taskLabel");
                     Text desText = new Text(tasksDesc[i]);
                     desText.getStyleClass().add("descText");
-                    Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Alarmclock@2x.png"));
+                    Image clockTime = new Image(Todolist.class.getResourceAsStream("/assets/Image/Calendar.png"));
                     ImageView timeImg = new ImageView(clockTime);
                     timeImg.setFitHeight(24);
                     timeImg.setFitWidth(24);
@@ -985,7 +992,7 @@ public class Todolist {
                         tasksNewCategory[index] = "4";
 
                         Connection connection = Dbconnect.getConnect();
-                        String sql = "UPDATE task SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
+                        String sql = "UPDATE tasks SET new_priority_id = '4' WHERE id = '" + tasksId[index] + "'";
                         try {
                           PreparedStatement statement = connection.prepareStatement(sql);
                           statement.executeUpdate();
@@ -1075,7 +1082,7 @@ public class Todolist {
                           // tasksNewCategory[index] = "4";
     
                           Connection connection = Dbconnect.getConnect();
-                          String sql = "UPDATE task SET new_priority_id = '" + tasksCategory[index] + "' WHERE id = '" + tasksId[index] + "'";
+                          String sql = "UPDATE tasks SET new_priority_id = '" + tasksCategory[index] + "' WHERE id = '" + tasksId[index] + "'";
                           try {
                             PreparedStatement statement = connection.prepareStatement(sql);
                             statement.executeUpdate();
@@ -1124,7 +1131,7 @@ public class Todolist {
     //   Scene scene = new Scene(borderPane, 600,1024);
 
     Connection connection = Dbconnect.getConnect();
-    String sql = "SELECT *FROM task WHERE user_id = ? AND id =?";
+    String sql = "SELECT *FROM tasks WHERE user_id = ? AND id =?";
     try {
       PreparedStatement statement = connection.prepareStatement(sql);
       statement.setInt(1, App.currentUserId);
@@ -1307,7 +1314,7 @@ public class Todolist {
             }
 
             Connection connection = Dbconnect.getConnect();
-            String updateTaskQuery = "UPDATE task SET title = ?, description = ?, deadline = ?, time_work = ?, label = ?, new_priority_id = ? WHERE id = ? AND user_id = ?";
+            String updateTaskQuery = "UPDATE tasks SET title = ?, description = ?, deadline = ?, time_work = ?, label = ?, new_priority_id = ? WHERE id = ? AND user_id = ?";
             PreparedStatement statement = connection.prepareStatement(updateTaskQuery);
 
             statement.setString(1, taskName);
@@ -1324,6 +1331,7 @@ public class Todolist {
 
             Stage showStage = new Stage();
             Todolist.show(showStage);
+            detailTaskStage.close();
             showStage.close();
             Platform.runLater(new Runnable() {
                 @Override
@@ -1357,7 +1365,7 @@ public class Todolist {
         @Override
         public void handle(ActionEvent event) {
           Connection connection = Dbconnect.getConnect();
-          String sql = "DELETE FROM task WHERE id =? AND user_id =?";
+          String sql = "DELETE FROM tasks WHERE id =? AND user_id =?";
             try {
                 PreparedStatement statement = connection.prepareStatement(sql);
                 statement.setString(1, currentTaskId);
@@ -1394,7 +1402,7 @@ public class Todolist {
       borderPane.setCenter(box);
 
       Scene scene = new Scene(borderPane, 500, 768);
-      detailTaskStage.setTitle("Login");
+      detailTaskStage.setTitle("Detail Task");
       detailTaskStage.setScene(scene);
       detailTaskStage.show();
 

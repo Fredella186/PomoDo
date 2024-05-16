@@ -1,3 +1,7 @@
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -26,6 +30,23 @@ public class Time extends Application {
         showTime(showTimeStage);
     }
 
+    public static String getTime() throws SQLException {
+        Connection connection = Dbconnect.getConnect();
+        String sql = "SELECT time_work FROM tasks WHERE user_id = ?";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setInt(1, App.currentUserId);
+    
+        String taskTime = null; // Initialize taskTime
+    
+        ResultSet resultSet = statement.executeQuery();
+        while (resultSet.next()) {
+            taskTime = resultSet.getString("time_work"); // Assign the retrieved value
+        }
+    
+        // Use taskTime directly (no need for additional conversion)
+        return taskTime;
+    }
+
     public static void showTime(Stage showTimeStage) throws Exception {
         BorderPane borderPane = new BorderPane();
         borderPane.getStylesheets().add("/assets/timeStyle.css");
@@ -39,7 +60,21 @@ public class Time extends Application {
         double centerBorderWidth = 10; // Example center border width
     
         CircularProgressbar timeBar = new CircularProgressbar(progressBarSize, progressWidth, centerBorderWidth); // Use progressBarSize here
-        Text timeText = new Text("00:30"); // Initial time text
+        Text timeText = new Text(); // Initial time text
+        try{
+            Connection connection = Dbconnect.getConnect();
+            String sql = "SELECT time_work FROM tasks WHERE user_id=? AND id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1,App.currentUserId);
+            statement.setString(2, Todolist.currentTaskId);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            timeText.setText(rs.getString("time_work"));
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        // System.out.println();
         HBox timeBox = new HBox(timeBar); // Remove timeText from here
         timeBox.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(timeBox, Pos.CENTER);
@@ -82,7 +117,8 @@ public class Time extends Application {
 
     private static void startTimer(Text timeText, CircularProgressbar timeBar) {
         String[] timeParts = timeText.getText().split(":");
-        int totalSeconds = Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
+        // int totalSeconds = Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
+        int totalSeconds = Integer.parseInt(timeParts[0]) * 3600 + Integer.parseInt(timeParts[1]) * 60 + Integer.parseInt(timeParts[2]);
     
         timeline = new Timeline(
             new KeyFrame(Duration.seconds(1), event -> {

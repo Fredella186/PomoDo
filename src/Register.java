@@ -126,7 +126,7 @@ public class Register {
                     // Connect database
                     Connection connection = Dbconnect.getConnect();
                     // Insert data ke database
-                    String sql = "INSERT INTO user (email, password,username) VALUES (?, ?,?)";
+                    String sql = "INSERT INTO users (email, password,username) VALUES (?, ?,?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
                     statement.setString(1, email);
                     statement.setString(2, hashedPassword);
@@ -191,12 +191,14 @@ public class Register {
        }
 
        public static String hashPassword(String password) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("SHA-256"); // Pilih algoritma
-        byte[] bytes = md.digest(password.getBytes()); // Hash password menjadi byte
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append(String.format("%02x", bytes[i])); // Konversi byte ke hexadecimal
-        }
-        return sb.toString(); // Kembalikan string hexadecimal
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256"); // Pilih algoritma
+            byte[] bytes = md.digest(password.getBytes()); // Hash password menjadi byte
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(String.format("%02x", bytes[i])); // Konversi byte ke hexadecimal
+            }
+            
+            return sb.toString(); // Kembalikan string hexadecimal
     }
 }

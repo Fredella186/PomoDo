@@ -17,3 +17,9 @@
     -fx-font-weight: bold;
     -fx-font-size: 16px;
 }
+.editBtn{
+    -fx-background-radius: 50%;
+    -fx-background-color: #FF6629;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+}
