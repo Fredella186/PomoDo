@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -90,58 +93,72 @@ public class App extends Application {
         btnLogIn.setPrefHeight(51);
 
         btnLogIn.setOnAction(new EventHandler<ActionEvent>() {
-        @Override
-        public void handle(ActionEvent event) {
-            try {
-            // Get email and password from input fields
-                String email = emailInput.getText();
-                String pass = passInput.getText();
-                String hashedPassword = hashPassword(pass);
-
-                // Connect to the database
-                Connection connection = Dbconnect.getConnect();
-
-                // Prepare a query to SELECT user ID with email and password
-                String sql = "SELECT id FROM users WHERE email = ? AND password = ?";
-                PreparedStatement statement = connection.prepareStatement(sql);
-                statement.setString(1, email);
-                statement.setString(2, hashedPassword);
-
-                // Execute the query and get the result set
-                ResultSet resultSet = statement.executeQuery();
-
-            // Check if a user was found
-                if (resultSet.next()) {
-                    // Get the user ID from the result set
-                    int userId = resultSet.getInt("id");
-                    App.currentUserId = userId;
-
-                    System.out.println("Login successful! User ID: " + userId); 
-
-                    Todolist.show(primaryStage);
-                } else {
-                    // User not found (invalid login)
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    // Get email and password from input fields
+                    String email = emailInput.getText();
+                    String pass = passInput.getText();
+                    String hashedPassword = hashPassword(pass);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
+                    LocalDate now = LocalDate.now();
+                    String nowDate = now.format(formatter);
+        
+                    // Connect to the database
+                    Connection connection = Dbconnect.getConnect();
+        
+                    // Prepare a query to SELECT user ID with email and password
+                    String sql = "SELECT id FROM users WHERE email = ? AND password = ?";
+                    PreparedStatement statement = connection.prepareStatement(sql);
+                    statement.setString(1, email);
+                    statement.setString(2, hashedPassword);
+        
+                    // Execute the query and get the result set
+                    ResultSet resultSet = statement.executeQuery();
+        
+                    // Check if a user was found
+                    if (resultSet.next()) {
+                        // Get the user ID from the result set
+                        int userId = resultSet.getInt("id");
+                        App.currentUserId = userId;
+        
+                        System.out.println("Login successful! User ID: " + userId);
+        
+                        Todolist.show(primaryStage);
+                    } else {
+                        // User not found (invalid login)
+                        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                        errorAlert.setTitle("Login Failed");
+                        errorAlert.setHeaderText(null);
+                        errorAlert.setContentText("Login failed. Please check your email and password.");
+                        errorAlert.showAndWait();
+                    }
+        
+                    // Update the last login date
+                    try {
+                        String sqlUpdate = "UPDATE users SET last_login = ? WHERE id = ?";
+                        PreparedStatement statementUpdate = connection.prepareStatement(sqlUpdate);
+                        statementUpdate.setString(1, nowDate);
+                        statementUpdate.setInt(2, App.currentUserId); // Use App.currentUserId
+                        statementUpdate.executeUpdate(); // Use executeUpdate() for UPDATE statement
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+        
+                    resultSet.close();
+                    statement.close();
+                } catch (SQLException e) {
                     Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                     errorAlert.setTitle("Login Failed");
                     errorAlert.setHeaderText(null);
                     errorAlert.setContentText("Login failed. Please check your email and password.");
                     errorAlert.showAndWait();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                resultSet.close();
-                statement.close();
-
-            } catch (SQLException e) {
-                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                errorAlert.setTitle("Login Failed");
-                errorAlert.setHeaderText(null);
-                errorAlert.setContentText("Login failed. Please check your email and password.");
-                errorAlert.showAndWait();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             }
         });
+        
 
             box.getChildren().addAll(textPane, inputPane, buttonPane);
             BorderPane.setAlignment(box, Pos.CENTER);
