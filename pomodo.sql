@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Apr 30, 2024 at 08:35 AM
--- Server version: 8.0.30
--- PHP Version: 8.1.10
+-- Host: 127.0.0.1
+-- Generation Time: May 20, 2024 at 05:05 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,85 +24,129 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `priority`
+-- Table structure for table `missions`
 --
 
-CREATE TABLE `priority` (
-  `id` int NOT NULL,
-  `name` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `priority`
---
-
-INSERT INTO `priority` (`id`, `name`) VALUES
-(1, 'high'),
-(2, 'medium'),
-(3, 'low'),
-(4, 'done');
+CREATE TABLE `missions` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `mission_type_id` int(10) UNSIGNED NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `date_mission_created` date NOT NULL,
+  `coint` int(11) NOT NULL,
+  `target` int(11) NOT NULL,
+  `icon` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `task`
+-- Table structure for table `mission_types`
 --
 
-CREATE TABLE `task` (
-  `id` int NOT NULL,
-  `user_id` int DEFAULT NULL,
-  `priority_id` int DEFAULT NULL,
-  `new_priority_id` int DEFAULT NULL,
-  `title` varchar(250) DEFAULT NULL,
-  `description` longtext,
+CREATE TABLE `mission_types` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `priorities`
+--
+
+CREATE TABLE `priorities` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `priorities`
+--
+
+INSERT INTO `priorities` (`id`, `name`) VALUES
+(1, 'High'),
+(2, 'Medium'),
+(3, 'Low'),
+(4, 'Done');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tasks`
+--
+
+CREATE TABLE `tasks` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `priority_id` int(10) UNSIGNED NOT NULL,
+  `new_priority_id` int(10) UNSIGNED NOT NULL,
+  `title` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
   `deadline` date DEFAULT NULL,
   `time_work` time DEFAULT NULL,
-  `label` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `label` varchar(50) DEFAULT NULL,
+  `date_task_created` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Table structure for table `users`
 --
 
-CREATE TABLE `user` (
-  `id` int NOT NULL,
-  `username` varchar(250) DEFAULT NULL,
-  `email` varchar(250) DEFAULT NULL,
-  `password` varchar(250) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `user`
---
-
-INSERT INTO `user` (`id`, `username`, `email`, `password`) VALUES
-(1, 'test', 'test@gmail.com', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3');
+CREATE TABLE `users` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `coin` int(11) DEFAULT NULL,
+  `start_streak` date DEFAULT NULL,
+  `last_login` date DEFAULT NULL,
+  `total_streak` int(11) DEFAULT NULL,
+  `low_task_completed` int(11) DEFAULT NULL,
+  `medium_task_completed` int(11) DEFAULT NULL,
+  `high_task_completed` int(11) DEFAULT NULL,
+  `total_task_completed` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
 --
 
 --
--- Indexes for table `priority`
+-- Indexes for table `missions`
 --
-ALTER TABLE `priority`
+ALTER TABLE `missions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `mission_type_id` (`mission_type_id`);
+
+--
+-- Indexes for table `mission_types`
+--
+ALTER TABLE `mission_types`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `task`
+-- Indexes for table `priorities`
 --
-ALTER TABLE `task`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `new_priority_id` (`new_priority_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `task_ibfk_3` (`priority_id`);
+ALTER TABLE `priorities`
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `user`
+-- Indexes for table `tasks`
 --
-ALTER TABLE `user`
+ALTER TABLE `tasks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `priority_id` (`priority_id`),
+  ADD KEY `new_priority_id` (`new_priority_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -110,34 +154,53 @@ ALTER TABLE `user`
 --
 
 --
--- AUTO_INCREMENT for table `priority`
+-- AUTO_INCREMENT for table `missions`
 --
-ALTER TABLE `priority`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+ALTER TABLE `missions`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `task`
+-- AUTO_INCREMENT for table `mission_types`
 --
-ALTER TABLE `task`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `mission_types`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `user`
+-- AUTO_INCREMENT for table `priorities`
 --
-ALTER TABLE `user`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `priorities`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `tasks`
+--
+ALTER TABLE `tasks`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `task`
+-- Constraints for table `missions`
 --
-ALTER TABLE `task`
-  ADD CONSTRAINT `task_ibfk_1` FOREIGN KEY (`new_priority_id`) REFERENCES `priority` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `task_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  ADD CONSTRAINT `task_ibfk_3` FOREIGN KEY (`priority_id`) REFERENCES `priority` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `missions`
+  ADD CONSTRAINT `missions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `missions_ibfk_2` FOREIGN KEY (`mission_type_id`) REFERENCES `mission_types` (`id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `tasks`
+--
+ALTER TABLE `tasks`
+  ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`priority_id`) REFERENCES `priorities` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `tasks_ibfk_3` FOREIGN KEY (`new_priority_id`) REFERENCES `priorities` (`id`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

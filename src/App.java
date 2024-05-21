@@ -34,7 +34,7 @@ public class App extends Application {
         launch(args);
     }
 
-   public void start(Stage primaryStage) throws Exception {
+public void start(Stage primaryStage) throws Exception {
     
         BorderPane borderPane = new BorderPane();
         borderPane.getStylesheets().add("/assets/loginStyle.css");
@@ -188,9 +188,9 @@ public class App extends Application {
         primaryStage.setTitle("Login");
         primaryStage.setScene(scene);
         primaryStage.show();
-   }
+}
 
-   public static String hashPassword(String password) throws NoSuchAlgorithmException {
+public static String hashPassword(String password) throws NoSuchAlgorithmException {
 
         MessageDigest md = MessageDigest.getInstance("SHA-256"); // Pilih algoritma
         byte[] bytes = md.digest(password.getBytes()); // Hash password menjadi byte

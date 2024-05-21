@@ -1,0 +1,33 @@
+.missionText{
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-padding: 50 0 0 0;
+}
+.bg{
+    -fx-background-color: white;
+}
+.numberText{
+    -fx-fill: #FF6629;
+    -fx-font-size: 60px;
+    -fx-font-weight: bold;
+}
+.bgdown{
+    -fx-background-color: #FF6629;
+}
+.createText{
+    -fx-fill: white;
+    -fx-font-size: 21px;
+    -fx-font-weight: bold;
+}
+.progress-bar > .track {
+    -fx-control-inner-background: #E55D26;
+    -fx-background-radius: 27px;
+    -fx-text-box-border: #E55D26;
+  }
+.progress-bar > .bar {
+    -fx-background-color: white;
+    -fx-background-radius: 27px;
+}
+.imgCheck{
+    -fx-padding-bottom:100;
+}

@@ -30,23 +30,6 @@ public class Time extends Application {
         showTime(showTimeStage);
     }
 
-    public static String getTime() throws SQLException {
-        Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT time_work FROM tasks WHERE user_id = ?";
-        PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setInt(1, App.currentUserId);
-    
-        String taskTime = null; // Initialize taskTime
-    
-        ResultSet resultSet = statement.executeQuery();
-        while (resultSet.next()) {
-            taskTime = resultSet.getString("time_work"); // Assign the retrieved value
-        }
-    
-        // Use taskTime directly (no need for additional conversion)
-        return taskTime;
-    }
-
     public static void showTime(Stage showTimeStage) throws Exception {
         BorderPane borderPane = new BorderPane();
         borderPane.getStylesheets().add("/assets/timeStyle.css");
@@ -65,7 +48,7 @@ public class Time extends Application {
             Connection connection = Dbconnect.getConnect();
             String sql = "SELECT time_work FROM tasks WHERE user_id=? AND id=?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1,App.currentUserId);
+            statement.setInt(1, App.currentUserId);
             statement.setString(2, Todolist.currentTaskId);
             ResultSet rs = statement.executeQuery();
             rs.next();
@@ -74,7 +57,7 @@ public class Time extends Application {
         {
             e.printStackTrace();
         }
-        // System.out.println();
+        
         HBox timeBox = new HBox(timeBar); // Remove timeText from here
         timeBox.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(timeBox, Pos.CENTER);
@@ -141,13 +124,26 @@ public class Time extends Application {
             timeline.stop();
         }
         elapsedTime = 0;
-        timeText.setText("00:30"); // Reset time to initial value
+        try{
+            Connection connection = Dbconnect.getConnect();
+            String sql = "SELECT time_work FROM tasks WHERE user_id=? AND id=?";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1, App.currentUserId);
+            statement.setString(2, Todolist.currentTaskId);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            timeText.setText(rs.getString("time_work"));
+        }catch(Exception e)
+        {
+            e.printStackTrace();
+        }
         timeBar.draw(100, timeText.getText()); // Reset progress bar and pass initial timer text
     }
 
     private static String formatTime(int seconds) {
-        int minutes = seconds / 60;
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
         int secs = seconds % 60;
-        return String.format("%02d:%02d", minutes, secs);
+        return String.format("%02d:%02d:%02d", hours, minutes, secs);
     }
 }
