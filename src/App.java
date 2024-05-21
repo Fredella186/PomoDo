@@ -29,20 +29,21 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 
-    public static int currentUserId; 
+    public static int currentUserId;
+
     public static void main(String[] args) {
         launch(args);
     }
 
-public void start(Stage primaryStage) throws Exception {
-    
+    public void start(Stage primaryStage) throws Exception {
+
         BorderPane borderPane = new BorderPane();
         borderPane.getStylesheets().add("/assets/loginStyle.css");
         borderPane.getStyleClass().add("bgColor");
 
         VBox box = new VBox();
         box.setAlignment(Pos.CENTER);
-        
+
         // Text welcome
         Text welcomeText = new Text("Welcome Back");
         welcomeText.getStyleClass().add("fontWelcome");
@@ -50,44 +51,44 @@ public void start(Stage primaryStage) throws Exception {
         Text detailText = new Text("Please enter your details");
         detailText.setTextAlignment(TextAlignment.CENTER);
         detailText.getStyleClass().add("text");
-        
-        VBox textPane = new VBox(welcomeText, detailText);
-        textPane.setAlignment(Pos. CENTER);
 
-        // Input 
+        VBox textPane = new VBox(welcomeText, detailText);
+        textPane.setAlignment(Pos.CENTER);
+
+        // Input
         GridPane inputPane = new GridPane();
-        inputPane.setAlignment(Pos. CENTER);
+        inputPane.setAlignment(Pos.CENTER);
         inputPane.setHgap(10);
         inputPane.setVgap(10);
 
-        //Label dan input email
+        // Label dan input email
         Label emailLabel = new Label("Email");
-        inputPane.add(emailLabel,0,3);
+        inputPane.add(emailLabel, 0, 3);
         emailLabel.getStyleClass().add("labelColor");
 
         TextField emailInput = new TextField();
-        inputPane.add(emailInput,0,4);
+        inputPane.add(emailInput, 0, 4);
         emailInput.setPrefWidth(399);
         emailInput.setPrefHeight(51);
 
         // Label dan input password
         Label passLabel = new Label("Password");
-        inputPane.add(passLabel,0,5);
+        inputPane.add(passLabel, 0, 5);
         passLabel.getStyleClass().add("labelColor");
-        
+
         PasswordField passInput = new PasswordField();
-        inputPane.add(passInput,0,6);
+        inputPane.add(passInput, 0, 6);
         passInput.setPrefWidth(399);
         passInput.setPrefHeight(51);
 
         GridPane buttonPane = new GridPane();
-        buttonPane.setAlignment(Pos. CENTER);
+        buttonPane.setAlignment(Pos.CENTER);
         buttonPane.setHgap(10);
         buttonPane.setVgap(10);
 
         // Button Log In
         Button btnLogIn = new Button("Log In");
-        buttonPane.add(btnLogIn,0,7);
+        buttonPane.add(btnLogIn, 0, 7);
         btnLogIn.getStyleClass().add("button");
         btnLogIn.setPrefWidth(399);
         btnLogIn.setPrefHeight(51);
@@ -103,27 +104,27 @@ public void start(Stage primaryStage) throws Exception {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
                     LocalDate now = LocalDate.now();
                     String nowDate = now.format(formatter);
-        
+
                     // Connect to the database
                     Connection connection = Dbconnect.getConnect();
-        
+
                     // Prepare a query to SELECT user ID with email and password
                     String sql = "SELECT id FROM users WHERE email = ? AND password = ?";
                     PreparedStatement statement = connection.prepareStatement(sql);
                     statement.setString(1, email);
                     statement.setString(2, hashedPassword);
-        
+
                     // Execute the query and get the result set
                     ResultSet resultSet = statement.executeQuery();
-        
+
                     // Check if a user was found
                     if (resultSet.next()) {
                         // Get the user ID from the result set
                         int userId = resultSet.getInt("id");
                         App.currentUserId = userId;
-        
+
                         System.out.println("Login successful! User ID: " + userId);
-        
+
                         Todolist.show(primaryStage);
                     } else {
                         // User not found (invalid login)
@@ -133,7 +134,7 @@ public void start(Stage primaryStage) throws Exception {
                         errorAlert.setContentText("Login failed. Please check your email and password.");
                         errorAlert.showAndWait();
                     }
-        
+
                     // Update the last login date
                     try {
                         String sqlUpdate = "UPDATE users SET last_login = ? WHERE id = ?";
@@ -144,7 +145,7 @@ public void start(Stage primaryStage) throws Exception {
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-        
+
                     resultSet.close();
                     statement.close();
                 } catch (SQLException e) {
@@ -158,28 +159,27 @@ public void start(Stage primaryStage) throws Exception {
                 }
             }
         });
-        
 
-            box.getChildren().addAll(textPane, inputPane, buttonPane);
-            BorderPane.setAlignment(box, Pos.CENTER);
-            borderPane.setCenter(box);
+        box.getChildren().addAll(textPane, inputPane, buttonPane);
+        BorderPane.setAlignment(box, Pos.CENTER);
+        borderPane.setCenter(box);
 
-            Text haveAccText = new Text("Don't have an account?");
-            haveAccText.getStyleClass().add("accText");
-            Hyperlink logInLink = new Hyperlink("Sign Up");
+        Text haveAccText = new Text("Don't have an account?");
+        haveAccText.getStyleClass().add("accText");
+        Hyperlink logInLink = new Hyperlink("Sign Up");
 
-            logInLink.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    try {
-                        Register.register(primaryStage);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        logInLink.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    Register.register(primaryStage);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
+            }
+        });
 
-        HBox haveAccPane = new HBox(haveAccText,logInLink);
+        HBox haveAccPane = new HBox(haveAccText, logInLink);
         haveAccPane.setAlignment(Pos.CENTER);
         haveAccPane.setPadding(new Insets(0, 0, 50, 0));
         borderPane.setBottom(haveAccPane);
@@ -188,9 +188,9 @@ public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Login");
         primaryStage.setScene(scene);
         primaryStage.show();
-}
+    }
 
-public static String hashPassword(String password) throws NoSuchAlgorithmException {
+    public static String hashPassword(String password) throws NoSuchAlgorithmException {
 
         MessageDigest md = MessageDigest.getInstance("SHA-256"); // Pilih algoritma
         byte[] bytes = md.digest(password.getBytes()); // Hash password menjadi byte
