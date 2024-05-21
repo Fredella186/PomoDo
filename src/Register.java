@@ -3,9 +3,6 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -103,9 +100,6 @@ public class Register {
                     String pass = passInput.getText();
                     String username = usernameInput.getText();
                     String hashedPassword = hashPassword(pass);
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
-                    LocalDate now = LocalDate.now();
-                    String nowDate = now.format(formatter);
 
                     // Validate email and password
                     if (email.isEmpty()) {
@@ -132,12 +126,11 @@ public class Register {
                     // Connect database
                     Connection connection = Dbconnect.getConnect();
                     // Insert data ke database
-                    String sql = "INSERT INTO users (email, password,username, last_login) VALUES (?, ?,?, ?)";
+                    String sql = "INSERT INTO users (email, password,username) VALUES (?, ?,?)";
                     PreparedStatement statement = connection.prepareStatement(sql);
                     statement.setString(1, email);
                     statement.setString(2, hashedPassword);
                     statement.setString(3, username);
-                    statement.setString(4, nowDate);
                     statement.executeUpdate();
 
                     // Show a success alert for 5 seconds

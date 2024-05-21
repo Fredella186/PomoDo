@@ -49,7 +49,7 @@ public class Todolist {
     public static String[] getTaskId() throws SQLException {
 
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT id FROM tasks WHERE user_id = ?"; 
+        String sql = "SELECT id FROM tasks WHERE created_by = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
 
@@ -74,7 +74,7 @@ public class Todolist {
 
     public static String[] getTask() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT title FROM tasks WHERE user_id = ?"; 
+        String sql = "SELECT title FROM tasks WHERE created_by = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -99,7 +99,7 @@ public class Todolist {
 
     public static String[] getTasksLabel() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT label FROM tasks WHERE user_id = ?"; 
+        String sql = "SELECT label FROM tasks WHERE created_by = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -124,7 +124,7 @@ public class Todolist {
 
     public static String[] getTasksDesc() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT description FROM tasks WHERE user_id = ?"; 
+        String sql = "SELECT description FROM tasks WHERE created_by = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -149,8 +149,8 @@ public class Todolist {
 
     public static String[] getTasksCategory() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT priority_id FROM tasks WHERE user_id = ?"; 
-        // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.user_id = ?";
+        String sql = "SELECT priority_id FROM tasks WHERE created_by = ?"; 
+        // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.created_by = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -175,8 +175,8 @@ public class Todolist {
 
     public static String[] getNewTasksCategory() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT new_priority_id FROM tasks WHERE user_id = ?"; 
-        // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.user_id = ?";
+        String sql = "SELECT new_priority_id FROM tasks WHERE created_by = ?"; 
+        // String sql = "SELECT priority.name FROM task INNER JOIN priority ON task.priority_id = priority.id WHERE task.created_by = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -201,7 +201,7 @@ public class Todolist {
 
     public static String[] getTasksDate() throws SQLException {
         Connection connection = Dbconnect.getConnect();
-        String sql = "SELECT deadline FROM tasks WHERE user_id = ?"; 
+        String sql = "SELECT deadline FROM tasks WHERE created_by = ?"; 
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setInt(1, App.currentUserId);
     
@@ -224,30 +224,30 @@ public class Todolist {
         return tasksDateArray; 
     }
 
-    public static String[] getTasksClock() throws SQLException {
-      Connection connection = Dbconnect.getConnect();
-      String sql = "SELECT time_work FROM tasks WHERE user_id = ?"; 
-      PreparedStatement statement = connection.prepareStatement(sql);
-      statement.setInt(1, App.currentUserId);
+  //   public static String[] getTasksClock() throws SQLException {
+  //     Connection connection = Dbconnect.getConnect();
+  //     String sql = "SELECT time_work FROM tasks WHERE created_by = ?"; 
+  //     PreparedStatement statement = connection.prepareStatement(sql);
+  //     statement.setInt(1, App.currentUserId);
   
-      ResultSet resultSet = statement.executeQuery();
+  //     ResultSet resultSet = statement.executeQuery();
   
-      List<String> tasksDateList = new ArrayList<>(); 
-      Todolist.tasksDate = tasksDateList;
+  //     List<String> tasksDateList = new ArrayList<>(); 
+  //     Todolist.tasksDate = tasksDateList;
   
-      while (resultSet.next()) {
-        tasksDateList.add(resultSet.getString(1));
-      }
+  //     while (resultSet.next()) {
+  //       tasksDateList.add(resultSet.getString(1));
+  //     }
   
-      // Convert the list to a String array (if needed)
-      String[] tasksDateArray = tasksDateList.toArray(new String[tasksDateList.size()]);
+  //     // Convert the list to a String array (if needed)
+  //     String[] tasksDateArray = tasksDateList.toArray(new String[tasksDateList.size()]);
   
-      resultSet.close();
-      statement.close();
-      connection.close(); 
+  //     resultSet.close();
+  //     statement.close();
+  //     connection.close(); 
   
-      return tasksDateArray; 
-  }
+  //     return tasksDateArray; 
+  // }
 
     public static void add(Stage addStage) throws Exception{
         BorderPane borderPane = new BorderPane();
@@ -361,9 +361,6 @@ public class Todolist {
                 int minuteInt = Integer.parseInt(minute);
                 LocalTime time = LocalTime.of(hourInt, minuteInt);
                 String tag = tagInput.getText();
-                LocalDate now = LocalDate.now();
-                // System.out.print(now);
-                String nowDate = now.format(formatter);
                 
                 int priorityId;
 
@@ -383,7 +380,7 @@ public class Todolist {
                 }
 
                 Connection connection = Dbconnect.getConnect();
-                String insertTaskQuery = "INSERT INTO tasks (user_id,priority_id,title,description,deadline,time_work,label,new_priority_id,date_task_created) VALUES (?,?,?,?,?,?,?,?,?)";
+                String insertTaskQuery = "INSERT INTO tasks (created_by,priority_id,title,description,deadline,time_work,label,new_priority_id) VALUES (?,?,?,?,?,?,?,?)";
                 // String insertTagQuery = "INSERT INTO tag (task_id, name) VALUES (LAST_INSERT_ID(), ?)";
                 PreparedStatement statement = connection.prepareStatement(insertTaskQuery);
 
@@ -395,7 +392,6 @@ public class Todolist {
                 statement.setString(6, time.toString());
                 statement.setString(7,tag);
                 statement.setInt(8, priorityId);
-                statement.setString(9, nowDate);
 
                 // Execute the statement
                 statement.executeUpdate();
@@ -618,7 +614,7 @@ public class Todolist {
         String[] tasksLabel = getTasksLabel();
         String[] tasksDesc = getTasksDesc();
         String[] tasksDate = getTasksDate();
-        String[] tasksClock = getTasksClock();
+        // String[] tasksClock = getTasksClock();
         String[] tasksCategory = getTasksCategory();
         String[] tasksNewCategory = getNewTasksCategory();
 
@@ -656,10 +652,10 @@ public class Todolist {
                     ImageView calImg = new ImageView(calTime);
                     calImg.setFitHeight(24);
                     calImg.setFitWidth(24);
-                    Text clock1Text = new Text(tasksClock[i]);
-                    clock1Text.getStyleClass().add("timeText");
-                    HBox clockImgTextBox = new HBox(calImg,clock1Text);
-                    clockImgTextBox.setSpacing(3);            
+                    // Text clock1Text = new Text(tasksClock[i]);
+                    // clock1Text.getStyleClass().add("timeText");
+                    // HBox clockImgTextBox = new HBox(calImg,clock1Text);
+                    // clockImgTextBox.setSpacing(3);            
                 
                   HBox taskPBox = new HBox(10);
                   HBox taskDescBox = new HBox(10);
@@ -668,7 +664,7 @@ public class Todolist {
                   priorityBox.setAlignment(Pos.CENTER_LEFT);
 
                   taskPBox.getChildren().addAll(task1Text, taskLabel);
-                  taskDescBox.getChildren().addAll(desText, timeImgTextBox, clockImgTextBox);
+                  taskDescBox.getChildren().addAll(desText, timeImgTextBox);
                   priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
                   priorityBox.getChildren().addAll(cb, priorityTaskBox);
                   taskBoxMain.getChildren().add(priorityBox);
@@ -768,10 +764,10 @@ public class Todolist {
                     ImageView calImg = new ImageView(calTime);
                     calImg.setFitHeight(24);
                     calImg.setFitWidth(24);
-                    Text clock1Text = new Text(tasksClock[i]);
-                    clock1Text.getStyleClass().add("timeText");
-                    HBox clockImgTextBox = new HBox(calImg,clock1Text);
-                    clockImgTextBox.setSpacing(3);           
+                    // Text clock1Text = new Text(tasksClock[i]);
+                    // clock1Text.getStyleClass().add("timeText");
+                    // HBox clockImgTextBox = new HBox(calImg,clock1Text);
+                    // clockImgTextBox.setSpacing(3);           
                     
                     
                 
@@ -782,7 +778,7 @@ public class Todolist {
                   priorityBox.setAlignment(Pos.CENTER_LEFT);
 
                   taskPBox.getChildren().addAll(task1Text, taskLabel);
-                  taskDescBox.getChildren().addAll(desText, timeImgTextBox, clockImgTextBox);
+                  taskDescBox.getChildren().addAll(desText, timeImgTextBox);
                   priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
                   priorityBox.getChildren().addAll(cb, priorityTaskBox);
                   taskBoxMain.getChildren().add(priorityBox);
@@ -866,10 +862,10 @@ public class Todolist {
                 ImageView calImg = new ImageView(calTime);
                 calImg.setFitHeight(24);
                 calImg.setFitWidth(24);
-                Text clock1Text = new Text(tasksClock[i]);
-                clock1Text.getStyleClass().add("timeText");
-                HBox clockImgTextBox = new HBox(calImg,clock1Text);
-                clockImgTextBox.setSpacing(3);            
+                // Text clock1Text = new Text(tasksClock[i]);
+                // clock1Text.getStyleClass().add("timeText");
+                // HBox clockImgTextBox = new HBox(calImg,clock1Text);
+                // clockImgTextBox.setSpacing(3);            
                 
                   HBox taskPBox = new HBox(10);
                   HBox taskDescBox = new HBox(10);
@@ -878,7 +874,7 @@ public class Todolist {
                   priorityBox.setAlignment(Pos.CENTER_LEFT);
 
                   taskPBox.getChildren().addAll(task1Text, taskLabel);
-                  taskDescBox.getChildren().addAll(desText, timeImgTextBox, clockImgTextBox);
+                  taskDescBox.getChildren().addAll(desText, timeImgTextBox);
                   priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
                   priorityBox.getChildren().addAll(cb, priorityTaskBox);
                   taskBoxMain.getChildren().add(priorityBox);
@@ -964,10 +960,10 @@ public class Todolist {
                     ImageView calImg = new ImageView(calTime);
                     calImg.setFitHeight(24);
                     calImg.setFitWidth(24);
-                    Text clock1Text = new Text(tasksClock[i]);
-                    clock1Text.getStyleClass().add("timeText");
-                    HBox clockImgTextBox = new HBox(calImg,clock1Text);
-                    clockImgTextBox.setSpacing(3);            
+                    // Text clock1Text = new Text(tasksClock[i]);
+                    // clock1Text.getStyleClass().add("timeText");
+                    // HBox clockImgTextBox = new HBox(calImg,clock1Text);
+                    // clockImgTextBox.setSpacing(3);            
                 
                   HBox taskPBox = new HBox(10);
                   HBox taskDescBox = new HBox(10);
@@ -976,7 +972,7 @@ public class Todolist {
                   priorityBox.setAlignment(Pos.CENTER_LEFT);
 
                   taskPBox.getChildren().addAll(task1Text, taskLabel);
-                  taskDescBox.getChildren().addAll(desText, timeImgTextBox, clockImgTextBox);
+                  taskDescBox.getChildren().addAll(desText, timeImgTextBox);
                   priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
                   priorityBox.getChildren().addAll(cb, priorityTaskBox);
                   taskBoxMain.getChildren().add(priorityBox);
@@ -1055,10 +1051,7 @@ public class Todolist {
                   ImageView calImg = new ImageView(calTime);
                   calImg.setFitHeight(24);
                   calImg.setFitWidth(24);
-                  Text clock1Text = new Text(tasksClock[i]);
-                  clock1Text.getStyleClass().add("timeDoneText");
-                  HBox clockImgTextBox = new HBox(calImg,clock1Text);
-                  clockImgTextBox.setSpacing(3);            
+                        
                 
                   HBox taskPBox = new HBox(10);
                   HBox taskDescBox = new HBox(10);
@@ -1067,7 +1060,7 @@ public class Todolist {
                   priorityBox.setAlignment(Pos.CENTER_LEFT);
 
                   taskPBox.getChildren().addAll(task1Text);
-                  taskDescBox.getChildren().addAll(desText, timeImgTextBox, clockImgTextBox);
+                  taskDescBox.getChildren().addAll(desText, timeImgTextBox);
                   priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
                   priorityBox.getChildren().addAll(cb, priorityTaskBox);
                   taskBoxMain.getChildren().add(priorityBox);
@@ -1131,7 +1124,7 @@ public class Todolist {
     //   Scene scene = new Scene(borderPane, 600,1024);
 
     Connection connection = Dbconnect.getConnect();
-    String sql = "SELECT *FROM tasks WHERE user_id = ? AND id =?";
+    String sql = "SELECT *FROM tasks WHERE created_by = ? AND id =?";
     try {
       PreparedStatement statement = connection.prepareStatement(sql);
       statement.setInt(1, App.currentUserId);
@@ -1314,7 +1307,7 @@ public class Todolist {
             }
 
             Connection connection = Dbconnect.getConnect();
-            String updateTaskQuery = "UPDATE tasks SET title = ?, description = ?, deadline = ?, time_work = ?, label = ?, new_priority_id = ? WHERE id = ? AND user_id = ?";
+            String updateTaskQuery = "UPDATE tasks SET title = ?, description = ?, deadline = ?, time_work = ?, label = ?, new_priority_id = ? WHERE id = ? AND created_by = ?";
             PreparedStatement statement = connection.prepareStatement(updateTaskQuery);
 
             statement.setString(1, taskName);
@@ -1365,7 +1358,7 @@ public class Todolist {
         @Override
         public void handle(ActionEvent event) {
           Connection connection = Dbconnect.getConnect();
-          String sql = "DELETE FROM tasks WHERE id =? AND user_id =?";
+          String sql = "DELETE FROM tasks WHERE id =? AND created_by =?";
             try {
                 PreparedStatement statement = connection.prepareStatement(sql);
                 statement.setString(1, currentTaskId);

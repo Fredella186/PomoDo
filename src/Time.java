@@ -46,7 +46,7 @@ public class Time extends Application {
         Text timeText = new Text(); // Initial time text
         try{
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT time_work FROM tasks WHERE user_id=? AND id=?";
+            String sql = "SELECT time_work FROM tasks WHERE created_by=? AND id=?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, App.currentUserId);
             statement.setString(2, Todolist.currentTaskId);
@@ -126,7 +126,7 @@ public class Time extends Application {
         elapsedTime = 0;
         try{
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT time_work FROM tasks WHERE user_id=? AND id=?";
+            String sql = "SELECT time_work FROM tasks WHERE created_by=? AND id=?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, App.currentUserId);
             statement.setString(2, Todolist.currentTaskId);

@@ -96,14 +96,12 @@ public class App extends Application {
         btnLogIn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+
                 try {
                     // Get email and password from input fields
                     String email = emailInput.getText();
                     String pass = passInput.getText();
                     String hashedPassword = hashPassword(pass);
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
-                    LocalDate now = LocalDate.now();
-                    String nowDate = now.format(formatter);
 
                     // Connect to the database
                     Connection connection = Dbconnect.getConnect();
@@ -133,17 +131,6 @@ public class App extends Application {
                         errorAlert.setHeaderText(null);
                         errorAlert.setContentText("Login failed. Please check your email and password.");
                         errorAlert.showAndWait();
-                    }
-
-                    // Update the last login date
-                    try {
-                        String sqlUpdate = "UPDATE users SET last_login = ? WHERE id = ?";
-                        PreparedStatement statementUpdate = connection.prepareStatement(sqlUpdate);
-                        statementUpdate.setString(1, nowDate);
-                        statementUpdate.setInt(2, App.currentUserId); // Use App.currentUserId
-                        statementUpdate.executeUpdate(); // Use executeUpdate() for UPDATE statement
-                    } catch (SQLException e) {
-                        e.printStackTrace();
                     }
 
                     resultSet.close();
