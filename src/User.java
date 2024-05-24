@@ -23,9 +23,9 @@ import javafx.stage.Stage;
 
 public class User {
 
-    public static void profile(Stage profileStage) throws Exception{
+    public static void profile(Stage profileStage) throws Exception {
         BorderPane borderPane = new BorderPane();
-        borderPane.setPadding(new Insets(20,20,20,20));
+        borderPane.setPadding(new Insets(20, 20, 20, 20));
         borderPane.getStylesheets().add("/assets/profileStyle.css");
         borderPane.getStyleClass().add("bgColor");
 
@@ -39,20 +39,20 @@ public class User {
         TextField usernameField = new TextField();
         // usernameField.setText("Josh");
 
-        try{
+        try {
             Connection connection = Dbconnect.getConnect();
             String sql = "SELECT username FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1,App.currentUserId);
+            statement.setInt(1, App.currentUserId);
             ResultSet rs = statement.executeQuery();
             rs.next();
             usernameField.setText(rs.getString("username"));
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         usernameField.getStyleClass().add("inputText");
-        VBox usernameBox = new VBox(usernameLabel,usernameField);
+        VBox usernameBox = new VBox(usernameLabel, usernameField);
         usernameField.setPrefWidth(280);
         usernameField.setPrefHeight(30);
         usernameBox.setSpacing(4);
@@ -62,26 +62,26 @@ public class User {
         TextField emailField = new TextField();
         // emailField.setText("josh@email.com");
 
-        try{
+        try {
             Connection connection = Dbconnect.getConnect();
             String sql = "SELECT email FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1,App.currentUserId);
+            statement.setInt(1, App.currentUserId);
             ResultSet rs = statement.executeQuery();
             rs.next();
             emailField.setText(rs.getString("email"));
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         emailField.getStyleClass().add("inputText");
-        VBox emailBox = new VBox(emailLabel,emailField);
+        VBox emailBox = new VBox(emailLabel, emailField);
         emailField.setPrefWidth(280);
         emailField.setPrefHeight(30);
         // emailField.getStyleClass().add("input");
         emailBox.setSpacing(4);
 
-        VBox inputBox = new VBox(usernameBox,emailBox);
+        VBox inputBox = new VBox(usernameBox, emailBox);
         inputBox.setSpacing(18);
         BorderPane.setAlignment(inputBox, Pos.CENTER);
         borderPane.setCenter(inputBox);
@@ -104,7 +104,7 @@ public class User {
         });
 
         Hyperlink logoutLink = new Hyperlink("Log Out");
-        logoutLink.setPadding(new Insets(10,100,0,100));
+        logoutLink.setPadding(new Insets(10, 100, 0, 100));
         logoutLink.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -118,24 +118,21 @@ public class User {
             }
         });
 
-
-
         logoutLink.getStyleClass().add("linkText");
         VBox btnBox = new VBox(profileBtn, logoutLink);
         BorderPane.setAlignment(btnBox, Pos.BOTTOM_CENTER);
         borderPane.setBottom(btnBox);
 
-
         Scene scene = new Scene(borderPane, 320, 341);
         profileStage.setTitle("Profile");
         profileStage.setScene(scene);
         profileStage.show();
-        
+
     }
 
-    public static void editProfile(Stage editProfileStage) throws Exception{
+    public static void editProfile(Stage editProfileStage) throws Exception {
         BorderPane borderPane = new BorderPane();
-        borderPane.setPadding(new Insets(20,20,20,20));
+        borderPane.setPadding(new Insets(20, 20, 20, 20));
         borderPane.getStylesheets().add("/assets/profileStyle.css");
         borderPane.getStyleClass().add("bgColor");
 
@@ -149,19 +146,19 @@ public class User {
         TextField usernameField = new TextField();
         // usernameField.setText("Josh");
 
-        try{
+        try {
             Connection connection = Dbconnect.getConnect();
             String sql = "SELECT username FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1,App.currentUserId);
+            statement.setInt(1, App.currentUserId);
             ResultSet rs = statement.executeQuery();
             rs.next();
             usernameField.setText(rs.getString("username"));
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        VBox usernameBox = new VBox(usernameLabel,usernameField);
+        VBox usernameBox = new VBox(usernameLabel, usernameField);
         usernameField.setPrefWidth(280);
         usernameField.setPrefHeight(30);
         usernameBox.setSpacing(4);
@@ -171,31 +168,31 @@ public class User {
         TextField emailField = new TextField();
         // emailField.setText("josh@email.com");
 
-        try{
+        try {
             Connection connection = Dbconnect.getConnect();
             String sql = "SELECT email FROM users WHERE id =?";
             PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1,App.currentUserId);
+            statement.setInt(1, App.currentUserId);
             ResultSet rs = statement.executeQuery();
             rs.next();
             emailField.setText(rs.getString("email"));
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        VBox emailBox = new VBox(emailLabel,emailField);
+        VBox emailBox = new VBox(emailLabel, emailField);
         emailField.setPrefWidth(280);
         emailField.setPrefHeight(30);
         // emailField.getStyleClass().add("input");
         emailBox.setSpacing(4);
 
-        VBox inputBox = new VBox(usernameBox,emailBox);
+        VBox inputBox = new VBox(usernameBox, emailBox);
         inputBox.setSpacing(18);
         BorderPane.setAlignment(inputBox, Pos.CENTER);
         borderPane.setCenter(inputBox);
 
         Button passBtn = new Button("Change Password");
-        passBtn.setPadding(new Insets(0,0,20,0));
+        passBtn.setPadding(new Insets(0, 0, 20, 0));
         passBtn.getStyleClass().add("passBtn");
 
         passBtn.setOnAction(new EventHandler<ActionEvent>() {
@@ -215,20 +212,19 @@ public class User {
         profileBtn.setPrefHeight(30);
         profileBtn.getStyleClass().add("profileBtn");
 
-        profileBtn.setOnAction(new EventHandler<ActionEvent>(){
+        profileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent event)
-            {
-                try{
+            public void handle(ActionEvent event) {
+                try {
                     String username = usernameField.getText();
                     String email = emailField.getText();
 
                     Connection connection = Dbconnect.getConnect();
                     String sql = "UPDATE users SET username =?, email =? WHERE id =?";
                     PreparedStatement statement = connection.prepareStatement(sql);
-                    statement.setString(1,username);
-                    statement.setString(2,email);
-                    statement.setInt(3,App.currentUserId);
+                    statement.setString(1, username);
+                    statement.setString(2, email);
+                    statement.setInt(3, App.currentUserId);
 
                     statement.executeUpdate();
 
@@ -239,37 +235,36 @@ public class User {
                     alert.showAndWait();
 
                     editProfileStage.close();
-                    Platform.runLater(new Runnable(){
+                    Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
-                            try{
+                            try {
                                 User.profile(new Stage());
-                            }catch(Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
-                            } 
+                            }
                         }
                     });
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             };
         });
 
-        VBox btnBox = new VBox(passBtn,profileBtn);
+        VBox btnBox = new VBox(passBtn, profileBtn);
         BorderPane.setAlignment(btnBox, Pos.BOTTOM_CENTER);
         borderPane.setBottom(btnBox);
-
 
         Scene scene = new Scene(borderPane, 320, 341);
         editProfileStage.setTitle("Profile");
         editProfileStage.setScene(scene);
         editProfileStage.show();
-        
+
     }
 
-    public static void chagePass(Stage profilePassStage) throws Exception{
+    public static void chagePass(Stage profilePassStage) throws Exception {
         BorderPane borderPane = new BorderPane();
-        borderPane.setPadding(new Insets(20,20,20,20));
+        borderPane.setPadding(new Insets(20, 20, 20, 20));
         borderPane.getStylesheets().add("/assets/profileStyle.css");
         borderPane.getStyleClass().add("bgColor");
 
@@ -281,7 +276,7 @@ public class User {
         Label usernameLabel = new Label("Current Password");
         usernameLabel.getStyleClass().add("labelText");
         PasswordField usernameField = new PasswordField();
-        VBox usernameBox = new VBox(usernameLabel,usernameField);
+        VBox usernameBox = new VBox(usernameLabel, usernameField);
         usernameField.setPrefWidth(280);
         usernameField.setPrefHeight(30);
         usernameBox.setSpacing(4);
@@ -289,7 +284,7 @@ public class User {
         Label emailLabel = new Label("New Password");
         emailLabel.getStyleClass().add("labelText");
         PasswordField emailField = new PasswordField();
-        VBox emailBox = new VBox(emailLabel,emailField);
+        VBox emailBox = new VBox(emailLabel, emailField);
         emailField.setPrefWidth(280);
         emailField.setPrefHeight(30);
         emailBox.setSpacing(4);
@@ -297,12 +292,12 @@ public class User {
         Label newLabel = new Label("Confirm New Password");
         newLabel.getStyleClass().add("labelText");
         PasswordField newField = new PasswordField();
-        VBox newBox = new VBox(newLabel,newField);
+        VBox newBox = new VBox(newLabel, newField);
         newField.setPrefWidth(280);
         newField.setPrefHeight(30);
         newBox.setSpacing(4);
 
-        VBox inputBox = new VBox(usernameBox,emailBox,newBox);
+        VBox inputBox = new VBox(usernameBox, emailBox, newBox);
         inputBox.setSpacing(18);
         BorderPane.setAlignment(inputBox, Pos.CENTER);
         borderPane.setCenter(inputBox);
@@ -315,11 +310,10 @@ public class User {
         BorderPane.setAlignment(btnBox, Pos.BOTTOM_CENTER);
         borderPane.setBottom(btnBox);
 
-        profileBtn.setOnAction(new EventHandler<ActionEvent>(){
+        profileBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent event)
-            {
-                try{
+            public void handle(ActionEvent event) {
+                try {
                     String currentPass = usernameField.getText();
                     String newPass = emailField.getText();
                     String newPass2 = newField.getText();
@@ -328,22 +322,20 @@ public class User {
                     String hashedNewPass2 = hashPassword(newPass2);
 
                     Connection connection = Dbconnect.getConnect();
-                    
-                    if(newPass.equals(newPass2)){
+
+                    if (newPass.equals(newPass2)) {
                         String sqlPass = "SELECT password FROM users WHERE id=?";
                         PreparedStatement statement = connection.prepareStatement(sqlPass);
-                        statement.setInt(1,App.currentUserId);
+                        statement.setInt(1, App.currentUserId);
                         ResultSet rs = statement.executeQuery();
-                        
-                        if(rs.next())
-                        {
+
+                        if (rs.next()) {
                             String storedHashedPass = rs.getString("password");
-                            if(hashedCurrentPass.equals(storedHashedPass))
-                            {
+                            if (hashedCurrentPass.equals(storedHashedPass)) {
                                 String sqlUpdate = "UPDATE users SET password=? WHERE id=?";
                                 PreparedStatement statement2 = connection.prepareStatement(sqlUpdate);
-                                statement2.setString(1,hashedNewPass);
-                                statement2.setInt(2,App.currentUserId);
+                                statement2.setString(1, hashedNewPass);
+                                statement2.setInt(2, App.currentUserId);
                                 statement2.executeUpdate();
                                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                                 alert.setTitle("Change Password");
@@ -357,7 +349,7 @@ public class User {
                                 App app = new App();
                                 app.start(profilePassStage);
                                 connection.close();
-                            }else{
+                            } else {
                                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                                 errorAlert.setTitle("Change Password");
                                 errorAlert.setHeaderText(null);
@@ -365,14 +357,14 @@ public class User {
                                 errorAlert.showAndWait();
                             }
                         }
-                    }else{
+                    } else {
                         Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                         errorAlert.setTitle("Change Password");
                         errorAlert.setHeaderText(null);
                         errorAlert.setContentText("Passwords do not match");
                         errorAlert.showAndWait();
                     }
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -382,7 +374,7 @@ public class User {
         profilePassStage.setTitle("Change Password");
         profilePassStage.setScene(scene);
         profilePassStage.show();
-        
+
     }
 
     public static String hashPassword(String password) throws NoSuchAlgorithmException {
