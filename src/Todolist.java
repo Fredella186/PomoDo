@@ -42,6 +42,8 @@ import java.awt.AWTException;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.TimeUnit;
 
 public class Todolist {
 
@@ -55,6 +57,9 @@ public class Todolist {
   public static List<String> tasksCategory;
   public static List<String> tasksNewCategory;
 
+  // indicator for looping screenCapture
+  public static boolean running = false;
+
   public static String getUsername() throws SQLException {
     Connection connection = Dbconnect.getConnect();
     String sql = "SELECT username FROM users WHERE id = ?";
@@ -67,6 +72,12 @@ public class Todolist {
       username = resultSet.getString("username");
     }
     return username;
+  }
+
+  public static int getRandomInterval() {
+    int min = 0;
+    int max = 1;
+    return (int) (Math.random() * (max - min + 1)) + min;
   }
 
   public static void screenCapture() throws AWTException, IOException, SQLException {
@@ -102,6 +113,21 @@ public class Todolist {
     ImageIO.write(image, "png", file);
 
     System.out.println("file berhasil disave di " + file.getAbsolutePath());
+  }
+
+  private static void startScreenCaptureLoop() {
+    new Thread(() -> {
+      while (running) {
+        try {
+          screenCapture();
+          // Delay between captures
+          TimeUnit.MINUTES.sleep(getRandomInterval());
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+      System.out.println("Loop stopped.");
+    }).start();
   }
 
   public static String[] getTaskId() throws SQLException {
@@ -439,12 +465,14 @@ public class Todolist {
           // PreparedStatement statement1 = connection.prepareStatement(taskId);
           // ResultSet rs = statement1.executeQuery();
           // if (rs.next()) {
-          //   taskId = rs.getString("LAST_INSERT_ID()");
+          // taskId = rs.getString("LAST_INSERT_ID()");
           // }
 
           // Execute the statement
-          // String insertCollabQuery = "INSERT INTO collaborators (task_id,user_id,time_work) VALUES (?,?,?)";
-          // PreparedStatement statement2 = connection.prepareStatement(insertCollabQuery);
+          // String insertCollabQuery = "INSERT INTO collaborators
+          // (task_id,user_id,time_work) VALUES (?,?,?)";
+          // PreparedStatement statement2 =
+          // connection.prepareStatement(insertCollabQuery);
           // statement2.setString(1, taskId);
           // statement2.setInt(2, App.currentUserId);
           // statement2.setString(3, time.toString());
