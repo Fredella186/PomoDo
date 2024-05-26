@@ -1,25 +1,13 @@
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
+import java.security.*;
+import java.sql.*;
+import javafx.application.*;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
+import javafx.stage.*;
 
 public class User {
 
@@ -319,7 +307,6 @@ public class User {
                     String newPass2 = newField.getText();
                     String hashedCurrentPass = hashPassword(currentPass);
                     String hashedNewPass = hashPassword(newPass);
-                    String hashedNewPass2 = hashPassword(newPass2);
 
                     Connection connection = Dbconnect.getConnect();
 

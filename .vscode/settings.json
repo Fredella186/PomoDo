@@ -1,18 +1,16 @@
 {
-    "java.project.sourcePaths": [
-        "src"
-    ],
+    "java.project.sourcePaths": ["src"],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
         "lib/**/*.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx.base.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/openjfx-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx.controls.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx.fxml.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx.graphics.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx.media.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx.swing.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx.web.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/javafx-swt.jar",
-        "C:/Users/ACER/Documents/GitHub/PomoDo/-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib/mysql-connector-j-8.3.0.jar"
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx.base.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx.controls.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx.fxml.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx.graphics.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx.media.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx.swing.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx.web.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\javafx-swt.jar",
+        "c:\\Program Files\\Java\\javafx-sdk-22.0.1\\lib\\mysql-connector-j-8.3.0.jar"
     ]
 }

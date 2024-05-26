@@ -1,20 +1,12 @@
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
-import javafx.util.Duration;
+import javafx.animation.*;
+import javafx.application.*;
+import javafx.geometry.*;
+import javafx.scene.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.*;
+import javafx.stage.*;
+import javafx.util.*;
 
 public class Time extends Application {
 
@@ -35,54 +27,40 @@ public class Time extends Application {
         borderPane.getStylesheets().add("/assets/timeStyle.css");
         borderPane.setPadding(new Insets(0,0,40,0));
         borderPane.getStyleClass().add("bg"); // Apply bg class here
-    
+
         Scene scene = new Scene(borderPane, 380, 450); // Adjust scene size
-    
+
         double progressBarSize = 300; // Adjust the size here
         double progressWidth = 20; // Example progress width
         double centerBorderWidth = 10; // Example center border width
-    
+
         CircularProgressbar timeBar = new CircularProgressbar(progressBarSize, progressWidth, centerBorderWidth); // Use progressBarSize here
-        Text timeText = new Text(); // Initial time text
-        try{
-            Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT time_work FROM tasks WHERE created_by=? AND id=?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, App.currentUserId);
-            statement.setString(2, Todolist.currentTaskId);
-            ResultSet rs = statement.executeQuery();
-            rs.next();
-            timeText.setText(rs.getString("time_work"));
-        }catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        
+        Text timeText = new Text("00:30"); // Initial time text
         HBox timeBox = new HBox(timeBar); // Remove timeText from here
         timeBox.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(timeBox, Pos.CENTER);
         borderPane.setCenter(timeBox);
-    
+
         Image refreshTimeImg = new Image(Time.class.getResourceAsStream("/assets/Image/Group 2.png"));
         ImageView refreshTimeView = new ImageView();
         refreshTimeView.setImage(refreshTimeImg);
         refreshTimeView.setOnMouseClicked(event -> resetTimer(timeText, timeBar));
-        
+
         Image playTimeImg = new Image(Time.class.getResourceAsStream("/assets/Image/Group 1.png"));
         ImageView playTimeView = new ImageView();
         playTimeView.setImage(playTimeImg);
         playTimeView.setOnMouseClicked(event -> toggleTimer(timeText, timeBar));
-    
+
         HBox playBox = new HBox(refreshTimeView, playTimeView);
         playBox.setAlignment(Pos.CENTER);
         playBox.setSpacing(15);
         BorderPane.setAlignment(playBox, Pos.BOTTOM_CENTER);
         borderPane.setBottom(playBox);
-    
+
         showTimeStage.setTitle("Time");
         showTimeStage.setScene(scene);
         showTimeStage.show();
-    
+
         startTimer(timeText, timeBar); // Start the timer here
     }   
 
@@ -100,9 +78,8 @@ public class Time extends Application {
 
     private static void startTimer(Text timeText, CircularProgressbar timeBar) {
         String[] timeParts = timeText.getText().split(":");
-        // int totalSeconds = Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
-        int totalSeconds = Integer.parseInt(timeParts[0]) * 3600 + Integer.parseInt(timeParts[1]) * 60 + Integer.parseInt(timeParts[2]);
-    
+        int totalSeconds = Integer.parseInt(timeParts[0]) * 60 + Integer.parseInt(timeParts[1]);
+
         timeline = new Timeline(
             new KeyFrame(Duration.seconds(1), event -> {
                 if (elapsedTime < totalSeconds) { // Add a check to prevent negative time
@@ -124,26 +101,13 @@ public class Time extends Application {
             timeline.stop();
         }
         elapsedTime = 0;
-        try{
-            Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT time_work FROM tasks WHERE created_by=? AND id=?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, App.currentUserId);
-            statement.setString(2, Todolist.currentTaskId);
-            ResultSet rs = statement.executeQuery();
-            rs.next();
-            timeText.setText(rs.getString("time_work"));
-        }catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+        timeText.setText("00:30"); // Reset time to initial value
         timeBar.draw(100, timeText.getText()); // Reset progress bar and pass initial timer text
     }
 
     private static String formatTime(int seconds) {
-        int hours = seconds / 3600;
-        int minutes = (seconds % 3600) / 60;
+        int minutes = seconds / 60;
         int secs = seconds % 60;
-        return String.format("%02d:%02d:%02d", hours, minutes, secs);
+        return String.format("%02d:%02d", minutes, secs);
     }
 }
