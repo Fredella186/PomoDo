@@ -3,18 +3,11 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Time",
-            "request": "launch",
-            "mainClass": "Time",
-            "projectName": "ToDoList_30bf9857"
-        },
-        {
-            "type": "java",
             "name": "App",
             "request": "launch",
             "mainClass": "App",
-            "projectName": "ToDoList_30bf9857",
-            "vmArgs": "--module-path \"openjfx-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
+            "projectName": "PomoDo_3edb42a0",
+            "vmArgs": "--module-path \"C:/Users/ACER/Documents/GitHub/PomoDo/openjfx-21.0.2_windows-x64_bin-sdk/javafx-sdk-21.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
         }
     ]
 }

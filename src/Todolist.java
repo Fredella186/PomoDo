@@ -75,8 +75,8 @@ public class Todolist {
   }
 
   public static int getRandomInterval() {
-    int min = 0;
-    int max = 1;
+    int min = 1;
+    int max = 3;
     return (int) (Math.random() * (max - min + 1)) + min;
   }
 
