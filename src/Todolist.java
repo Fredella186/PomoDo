@@ -1239,6 +1239,7 @@ allBtn.setOnAction(new EventHandler<ActionEvent>() {
 
     Connection connection = Dbconnect.getConnect();
     String sql = "SELECT * FROM tasks WHERE created_by = ? AND id = ?";
+
     String sqlColab = "SELECT u.email FROM collaborators c JOIN users u ON c.user_id = u.id WHERE c.task_id = ?";
 
     try {
@@ -1372,8 +1373,8 @@ allBtn.setOnAction(new EventHandler<ActionEvent>() {
 
         for (String email : collaborators) {
             TextField colabInput = new TextField(email);
-            colabInput.setEditable(false);
-            colabBox.getChildren().add(colabInput);
+            Button colabInputBtn = new Button("Remove Collaborator");
+            colabBox.getChildren().addAll(colabInput, colabInputBtn);
         }
 
         addPane.add(colabBox, 0, 15);
@@ -1392,7 +1393,18 @@ allBtn.setOnAction(new EventHandler<ActionEvent>() {
         startBtn.setPrefHeight(51);
         startBtn.getStyleClass().add("btn");
 
-        // Add startBtn ActionEvent
+        startBtn.setOnAction(new EventHandler<ActionEvent>() {
+          @Override
+          public void handle(ActionEvent event) {
+            try {
+              Time time = new Time();
+              time.showTime(new Stage());
+              screenCapture();
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
+        });
 
         HBox editTaskbox = new HBox(startBtn);
         editTaskbox.setSpacing(40);
