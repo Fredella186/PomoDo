@@ -161,7 +161,8 @@ public class Todolist {
   public static String[] getTaskCreatedBy() throws SQLException {
     Connection connection = Dbconnect.getConnect();
     String sql = "SELECT email FROM users u LEFT JOIN tasks t ON u.id = t.created_by LEFT JOIN collaborators c ON t.id = c.task_id WHERE c.user_id = ?";
-    // String sql = "SELECT created_by FROM tasks RIGHT JOIN collaborators ON tasks.id = collaborators.task_id WHERE collaborators.user_id = ?";
+    // String sql = "SELECT created_by FROM tasks RIGHT JOIN collaborators ON
+    // tasks.id = collaborators.task_id WHERE collaborators.user_id = ?";
     PreparedStatement statement = connection.prepareStatement(sql);
     statement.setInt(1, App.currentUserId);
     ResultSet resultSet = statement.executeQuery();
@@ -333,7 +334,6 @@ public class Todolist {
 
     return tasksDateArray;
   }
-
 
   public static void add(Stage addStage) throws Exception {
     BorderPane borderPane = new BorderPane();
@@ -600,13 +600,11 @@ public class Todolist {
     box.setAlignment(Pos.CENTER);
 
     // Header
-    Text holaText = new Text("Hola, ");
-    holaText.getStyleClass().add("nameText");
+    Text helloText = new Text("Hello, ");
+    helloText.getStyleClass().add("nameText");
     Text nameText = new Text();
-    // nameText.setText("Hola,Josh");
     nameText.getStyleClass().add("nameText");
     try {
-
       Connection connection = Dbconnect.getConnect();
       String sql = "SELECT username FROM users WHERE id =?";
       PreparedStatement statement = connection.prepareStatement(sql);
@@ -618,7 +616,7 @@ public class Todolist {
       e.printStackTrace();
     }
 
-    HBox nameBox = new HBox(holaText, nameText);
+    HBox nameBox = new HBox(helloText, nameText);
     Text dateText = new Text();
     dateText.setText("15 Mar 2024");
     dateText.getStyleClass().add("dateText");
@@ -651,25 +649,27 @@ public class Todolist {
       }
     });
 
-    Image clockImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Clock.png"));
-    Button clockBtn = new Button();
-    clockBtn.setGraphic(new ImageView(clockImg));
-    clockBtn.setPrefWidth(51);
-    clockBtn.setPrefHeight(51);
-    clockBtn.getStyleClass().add("btn");
+    // Image clockImg = new
+    // Image(Todolist.class.getResourceAsStream("/assets/Image/Clock.png"));
+    // Button clockBtn = new Button();
+    // clockBtn.setGraphic(new ImageView(clockImg));
+    // clockBtn.setPrefWidth(51);
+    // clockBtn.setPrefHeight(51);
+    // clockBtn.getStyleClass().add("btn");
 
-    clockBtn.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent event) {
-        try {
-          Time time = new Time();
-          time.showTime(new Stage()); // Call the Todolist's add method to display the stage
-          // primaryStage.close(); // Close the login stage after successful login
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-    });
+    // clockBtn.setOnAction(new EventHandler<ActionEvent>() {
+    // @Override
+    // public void handle(ActionEvent event) {
+    // try {
+    // Time time = new Time();
+    // time.showTime(new Stage()); // Call the Todolist's add method to display the
+    // stage
+    // // primaryStage.close(); // Close the login stage after successful login
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // }
+    // });
 
     Image newTaskImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Add_ring.png"));
     Button newTaskBtn = new Button("New Task");
@@ -678,7 +678,8 @@ public class Todolist {
     newTaskBtn.setPrefHeight(51);
     newTaskBtn.getStyleClass().add("taskBtn");
 
-    HBox btnBox = new HBox(profileBtn, clockBtn, newTaskBtn);
+    HBox btnBox = new HBox(profileBtn, newTaskBtn);
+    // HBox btnBox = new HBox(profileBtn, clockBtn, newTaskBtn);
     btnBox.setSpacing(10);
     BorderPane.setAlignment(btnBox, Pos.TOP_RIGHT);
 
@@ -695,14 +696,43 @@ public class Todolist {
 
     Text progressText = new Text("Task Progress");
     progressText.getStyleClass().add("pTask");
-    ProgressBar taskProgressBar = new ProgressBar(0.4);
+    Text percentageText = new Text();
+    percentageText.getStyleClass().add("pTask");
+
+    ProgressBar taskProgressBar = new ProgressBar();
+    try {
+      Connection connection = Dbconnect.getConnect();
+      String totalTasksQuery = "SELECT COUNT(*) AS total FROM tasks WHERE created_by=?";
+      String completedTasksQuery = "SELECT COUNT(*) AS completed FROM tasks WHERE created_by=? AND new_priority_id = 4";
+
+      PreparedStatement totalTasksStmt = connection.prepareStatement(totalTasksQuery);
+      totalTasksStmt.setInt(1, App.currentUserId);
+      ResultSet totalTasksRs = totalTasksStmt.executeQuery();
+
+      PreparedStatement completedTasksStmt = connection.prepareStatement(completedTasksQuery);
+      completedTasksStmt.setInt(1, App.currentUserId);
+      ResultSet completedTasksRs = completedTasksStmt.executeQuery();
+
+      if (totalTasksRs.next() && completedTasksRs.next()) {
+        int totalTasks = totalTasksRs.getInt("total");
+        int completedTasks = completedTasksRs.getInt("completed");
+        double progress = (totalTasks > 0) ? (double) completedTasks / totalTasks : 0.0;
+        taskProgressBar.setProgress(progress);
+        percentageText.setText(String.format("%.0f%%", progress * 100));
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
     taskProgressBar.setPrefWidth(1280);
     taskProgressBar.setPrefHeight(15);
-    VBox progressBox = new VBox(progressText, taskProgressBar);
-    progressBox.setSpacing(15);
+    HBox progressHBox = new HBox(progressText, percentageText);
+    progressHBox.setSpacing(10);
+    VBox progressVBox = new VBox(progressHBox, taskProgressBar);
+    progressVBox.setSpacing(15);
     HBox topBox = new HBox(profileBox, btnBox);
     topBox.setSpacing(750);
-    VBox taskTopBox = new VBox(topBox, progressBox);
+    VBox taskTopBox = new VBox(topBox, progressVBox);
     taskTopBox.setSpacing(20);
     borderPane.setTop(taskTopBox);
 
@@ -710,10 +740,12 @@ public class Todolist {
     Text activeText = new Text("Active");
     taskTopBox.setPadding(new Insets(0, 0, 20, 0));
     activeText.getStyleClass().add("pTask");
+
     Button allBtn = new Button("All");
     allBtn.setPrefWidth(51);
     allBtn.setPrefHeight(42);
     allBtn.getStyleClass().add("filterBtn");
+
     Button lowBtn = new Button("Low");
     lowBtn.setPrefWidth(63);
     lowBtn.setPrefHeight(42);
@@ -806,14 +838,14 @@ public class Todolist {
               VBox priorityTaskBox = new VBox();
               HBox priorityBox = new HBox(10);
               priorityBox.setAlignment(Pos.CENTER_LEFT);
-              
+
               GridPane grid = new GridPane();
               Text createdText = new Text("Created by : ");
               createdText.getStyleClass().add("createdBy");
-              grid.add(createdText,0,0);
+              grid.add(createdText, 0, 0);
               Text createdByText = new Text(tasksCreatedBy[i]);
               createdByText.getStyleClass().add("createdBy");
-              grid.add(createdByText,1,0);
+              grid.add(createdByText, 1, 0);
 
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
@@ -927,10 +959,10 @@ public class Todolist {
               GridPane grid = new GridPane();
               Text createdText = new Text("Created by : ");
               createdText.getStyleClass().add("createdBy");
-              grid.add(createdText,0,0);
+              grid.add(createdText, 0, 0);
               Text createdByText = new Text(tasksCreatedBy[i]);
               createdByText.getStyleClass().add("createdBy");
-              grid.add(createdByText,1,0);
+              grid.add(createdByText, 1, 0);
 
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
@@ -1026,10 +1058,10 @@ public class Todolist {
               GridPane grid = new GridPane();
               Text createdText = new Text("Created by : ");
               createdText.getStyleClass().add("createdBy");
-              grid.add(createdText,0,0);
+              grid.add(createdText, 0, 0);
               Text createdByText = new Text(tasksCreatedBy[i]);
               createdByText.getStyleClass().add("createdBy");
-              grid.add(createdByText,1,0);
+              grid.add(createdByText, 1, 0);
 
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
@@ -1126,10 +1158,10 @@ public class Todolist {
               GridPane grid = new GridPane();
               Text createdText = new Text("Created by : ");
               createdText.getStyleClass().add("createdBy");
-              grid.add(createdText,0,0);
+              grid.add(createdText, 0, 0);
               Text createdByText = new Text(tasksCreatedBy[i]);
               createdByText.getStyleClass().add("createdBy");
-              grid.add(createdByText,1,0);
+              grid.add(createdByText, 1, 0);
 
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
@@ -1219,10 +1251,10 @@ public class Todolist {
         GridPane grid = new GridPane();
         Text createdText = new Text("Created by : ");
         createdText.getStyleClass().add("createdBy");
-        grid.add(createdText,0,0);
+        grid.add(createdText, 0, 0);
         Text createdByText = new Text(tasksCreatedBy[i]);
         createdByText.getStyleClass().add("createdBy");
-        grid.add(createdByText,1,0);
+        grid.add(createdByText, 1, 0);
 
         taskPBox.getChildren().addAll(task1Text);
         taskDescBox.getChildren().addAll(desText, timeImgTextBox);
@@ -1331,7 +1363,7 @@ public class Todolist {
       Label taskLabel = new Label("Task Name");
       addPane.add(taskLabel, 0, 2);
       taskLabel.getStyleClass().add("labelColor");
-      
+
       TextField taskInput = new TextField();
       taskInput.setPromptText("Enter task name");
       taskInput.setText(task.get(0));
@@ -1426,36 +1458,36 @@ public class Todolist {
       List<TextField> colabInputs = new ArrayList<>();
 
       for (String email : collaborators) {
-      TextField colabInput = new TextField(email);
-      colabInput.setPrefWidth(250);
-      colabInput.setPrefHeight(35);
-      colabInput.setEditable(true);
-      colabInputs.add(colabInput); // Add each collaborator input to the list
+        TextField colabInput = new TextField(email);
+        colabInput.setPrefWidth(250);
+        colabInput.setPrefHeight(35);
+        colabInput.setEditable(true);
+        colabInputs.add(colabInput); // Add each collaborator input to the list
 
-      Button colabInputBtn = new Button("-");
-      colabInputBtn.setPrefWidth(50);
-      colabInputBtn.setPrefHeight(35);
+        Button colabInputBtn = new Button("-");
+        colabInputBtn.setPrefWidth(50);
+        colabInputBtn.setPrefHeight(35);
 
-      // Check if the email is from the creator or the current user
-      boolean isCreator = email.equals(getEmailByUserId(connection, createdBy));
-      boolean isCurrentUser = email.equals(getEmailByUserId(connection, App.currentUserId));
+        // Check if the email is from the creator or the current user
+        boolean isCreator = email.equals(getEmailByUserId(connection, createdBy));
+        boolean isCurrentUser = email.equals(getEmailByUserId(connection, App.currentUserId));
 
-      HBox colabRow = new HBox();
-      colabRow.setSpacing(10); // Adjust spacing as needed
-      colabRow.getChildren().add(colabInput);
+        HBox colabRow = new HBox();
+        colabRow.setSpacing(10); // Adjust spacing as needed
+        colabRow.getChildren().add(colabInput);
 
-      if (isCreator || isCurrentUser) {
+        if (isCreator || isCurrentUser) {
           colabInput.setEditable(false);
-      } else {
+        } else {
           colabRow.getChildren().add(colabInputBtn);
           colabInputBtn.setOnAction(event -> {
-              colabBox.getChildren().remove(colabRow);
-              colabInputs.remove(colabInput); // Remove the input from the list when it's removed from the UI
+            colabBox.getChildren().remove(colabRow);
+            colabInputs.remove(colabInput); // Remove the input from the list when it's removed from the UI
           });
-      }
+        }
 
-      colabBox.getChildren().add(colabRow);
-    }
+        colabBox.getChildren().add(colabRow);
+      }
 
       addPane.add(colabBox, 0, 15);
 
