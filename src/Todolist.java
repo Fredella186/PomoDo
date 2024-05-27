@@ -1,17 +1,39 @@
-import java.sql.*;
-import java.time.*;
-import java.time.format.*;
-import java.util.*;
-import javafx.application.*;
-import javafx.event.*;
-import javafx.geometry.*;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.image.*;
-import javafx.scene.input.*;
-import javafx.scene.layout.*;
-import javafx.scene.text.*;
-import javafx.stage.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
@@ -32,6 +54,7 @@ public class Todolist {
   public static List<String> tasksClock;
   public static List<String> tasksCategory;
   public static List<String> tasksNewCategory;
+  public static List<String> taskCreatedBy;
   private static int i = 0;
 
   // indicator for looping screenCapture
@@ -133,6 +156,26 @@ public class Todolist {
     connection.close();
 
     return tasksIdArray;
+  }
+
+  public static String[] getTaskCreatedBy() throws SQLException {
+    Connection connection = Dbconnect.getConnect();
+    String sql = "SELECT email FROM users u LEFT JOIN tasks t ON u.id = t.created_by LEFT JOIN collaborators c ON t.id = c.task_id WHERE c.user_id = ?";
+    // String sql = "SELECT created_by FROM tasks RIGHT JOIN collaborators ON tasks.id = collaborators.task_id WHERE collaborators.user_id = ?";
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setInt(1, App.currentUserId);
+    ResultSet resultSet = statement.executeQuery();
+    List<String> tasksCreatedByList = new ArrayList<>();
+    Todolist.taskCreatedBy = tasksCreatedByList;
+    while (resultSet.next()) {
+      tasksCreatedByList.add(resultSet.getString(1));
+    }
+    // Convert the list to a String array (if needed)
+    String[] tasksCreatedByArray = tasksCreatedByList.toArray(new String[tasksCreatedByList.size()]);
+    resultSet.close();
+    statement.close();
+    connection.close();
+    return tasksCreatedByArray;
   }
 
   public static String[] getTask() throws SQLException {
@@ -291,6 +334,7 @@ public class Todolist {
     return tasksDateArray;
   }
 
+
   public static void add(Stage addStage) throws Exception {
     BorderPane borderPane = new BorderPane();
     borderPane.getStylesheets().add("/assets/addTaskStyle.css");
@@ -378,21 +422,29 @@ public class Todolist {
     colabLabel.getStyleClass().add("labelColor");
 
     TextField colabInput = new TextField();
+    // colabInput.setPromptText("Enter collaborators email");
     addPane.add(colabInput, 0, 15);
     colabInput.setPrefWidth(250);
     colabInput.setPrefHeight(35);
 
-    Button plusBtn = new Button("plus");
+    Button plusBtn = new Button("+");
     addPane.add(plusBtn, 1, 15);
     plusBtn.setPrefWidth(50);
     plusBtn.setPrefHeight(35);
 
     List<TextField> additionalColabFields = new ArrayList<>();
+    // ((Region) additionalColabFields).setPrefWidth(250);
+    // ((Region) additionalColabFields).setPrefHeight(35);
 
     plusBtn.setOnAction(event -> {
       i++;
       TextField plusText = new TextField();
-      Button minusBtn = new Button("minus");
+      // plusText.setPromptText("Enter collaborators email");
+      plusText.setPrefWidth(250);
+      plusText.setPrefHeight(35);
+      Button minusBtn = new Button("-");
+      minusBtn.setPrefWidth(50);
+      minusBtn.setPrefHeight(35);
       addPane.add(plusText, 0, 15 + i);
       addPane.add(minusBtn, 1, 15 + i);
       additionalColabFields.add(plusText);
@@ -702,6 +754,7 @@ public class Todolist {
     // String[] tasksClock = getTasksClock();
     String[] tasksCategory = getTasksCategory();
     String[] tasksNewCategory = getNewTasksCategory();
+    String[] tasksCreatedBy = getTaskCreatedBy();
 
     allBtn.setOnAction(new EventHandler<ActionEvent>() {
       @Override
@@ -742,6 +795,7 @@ public class Todolist {
               ImageView calImg = new ImageView(calTime);
               calImg.setFitHeight(24);
               calImg.setFitWidth(24);
+              Text createdBy = new Text(tasksCreatedBy[i]);
               // Text clock1Text = new Text(tasksClock[i]);
               // clock1Text.getStyleClass().add("timeText");
               // HBox clockImgTextBox = new HBox(calImg,clock1Text);
@@ -752,10 +806,18 @@ public class Todolist {
               VBox priorityTaskBox = new VBox();
               HBox priorityBox = new HBox(10);
               priorityBox.setAlignment(Pos.CENTER_LEFT);
+              
+              GridPane grid = new GridPane();
+              Text createdText = new Text("Created by : ");
+              createdText.getStyleClass().add("createdBy");
+              grid.add(createdText,0,0);
+              Text createdByText = new Text(tasksCreatedBy[i]);
+              createdByText.getStyleClass().add("createdBy");
+              grid.add(createdByText,1,0);
 
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
-              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
               taskBoxMain.getChildren().add(priorityBox);
 
@@ -862,9 +924,17 @@ public class Todolist {
               HBox priorityBox = new HBox(10);
               priorityBox.setAlignment(Pos.CENTER_LEFT);
 
+              GridPane grid = new GridPane();
+              Text createdText = new Text("Created by : ");
+              createdText.getStyleClass().add("createdBy");
+              grid.add(createdText,0,0);
+              Text createdByText = new Text(tasksCreatedBy[i]);
+              createdByText.getStyleClass().add("createdBy");
+              grid.add(createdByText,1,0);
+
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
-              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
               taskBoxMain.getChildren().add(priorityBox);
 
@@ -946,10 +1016,6 @@ public class Todolist {
               ImageView calImg = new ImageView(calTime);
               calImg.setFitHeight(24);
               calImg.setFitWidth(24);
-              // Text clock1Text = new Text(tasksClock[i]);
-              // clock1Text.getStyleClass().add("timeText");
-              // HBox clockImgTextBox = new HBox(calImg,clock1Text);
-              // clockImgTextBox.setSpacing(3);
 
               HBox taskPBox = new HBox(10);
               HBox taskDescBox = new HBox(10);
@@ -957,9 +1023,17 @@ public class Todolist {
               HBox priorityBox = new HBox(10);
               priorityBox.setAlignment(Pos.CENTER_LEFT);
 
+              GridPane grid = new GridPane();
+              Text createdText = new Text("Created by : ");
+              createdText.getStyleClass().add("createdBy");
+              grid.add(createdText,0,0);
+              Text createdByText = new Text(tasksCreatedBy[i]);
+              createdByText.getStyleClass().add("createdBy");
+              grid.add(createdByText,1,0);
+
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
-              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
               taskBoxMain.getChildren().add(priorityBox);
 
@@ -1042,10 +1116,6 @@ public class Todolist {
               ImageView calImg = new ImageView(calTime);
               calImg.setFitHeight(24);
               calImg.setFitWidth(24);
-              // Text clock1Text = new Text(tasksClock[i]);
-              // clock1Text.getStyleClass().add("timeText");
-              // HBox clockImgTextBox = new HBox(calImg,clock1Text);
-              // clockImgTextBox.setSpacing(3);
 
               HBox taskPBox = new HBox(10);
               HBox taskDescBox = new HBox(10);
@@ -1053,9 +1123,17 @@ public class Todolist {
               HBox priorityBox = new HBox(10);
               priorityBox.setAlignment(Pos.CENTER_LEFT);
 
+              GridPane grid = new GridPane();
+              Text createdText = new Text("Created by : ");
+              createdText.getStyleClass().add("createdBy");
+              grid.add(createdText,0,0);
+              Text createdByText = new Text(tasksCreatedBy[i]);
+              createdByText.getStyleClass().add("createdBy");
+              grid.add(createdByText,1,0);
+
               taskPBox.getChildren().addAll(task1Text, taskLabel);
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
-              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+              priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
               taskBoxMain.getChildren().add(priorityBox);
 
@@ -1138,9 +1216,17 @@ public class Todolist {
         HBox priorityBox = new HBox(10);
         priorityBox.setAlignment(Pos.CENTER_LEFT);
 
+        GridPane grid = new GridPane();
+        Text createdText = new Text("Created by : ");
+        createdText.getStyleClass().add("createdBy");
+        grid.add(createdText,0,0);
+        Text createdByText = new Text(tasksCreatedBy[i]);
+        createdByText.getStyleClass().add("createdBy");
+        grid.add(createdByText,1,0);
+
         taskPBox.getChildren().addAll(task1Text);
         taskDescBox.getChildren().addAll(desText, timeImgTextBox);
-        priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox);
+        priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
         priorityBox.getChildren().addAll(cb, priorityTaskBox);
         taskBoxMain.getChildren().add(priorityBox);
 
@@ -1197,7 +1283,8 @@ public class Todolist {
     borderPane.getStylesheets().add("/assets/addTaskStyle.css");
 
     Connection connection = Dbconnect.getConnect();
-    String sql = "SELECT * FROM tasks WHERE created_by = ? AND id = ?";
+    // String sql = "SELECT * FROM tasks WHERE created_by = ? AND id = ?";
+    String sql = "SELECT * FROM tasks RIGHT JOIN collaborators ON tasks.id = collaborators.task_id WHERE collaborators.user_id = ? AND tasks.id = ?";
 
     String sqlColab = "SELECT u.email FROM collaborators c JOIN users u ON c.user_id = u.id WHERE c.task_id = ?";
 
@@ -1208,12 +1295,15 @@ public class Todolist {
       ResultSet rs = statement.executeQuery();
       List<String> task = new ArrayList<>();
 
+      int createdBy = -1; // Initialize a variable to store the creator's ID
+
       if (rs.next()) {
         task.add(rs.getString("title"));
         task.add(rs.getString("description"));
         task.add(rs.getString("deadline"));
         task.add(rs.getString("new_priority_id"));
         task.add(rs.getString("label"));
+        createdBy = rs.getInt("created_by"); // Get the creator's ID
       }
 
       PreparedStatement colabStatement = connection.prepareStatement(sqlColab);
@@ -1241,8 +1331,9 @@ public class Todolist {
       Label taskLabel = new Label("Task Name");
       addPane.add(taskLabel, 0, 2);
       taskLabel.getStyleClass().add("labelColor");
-
+      
       TextField taskInput = new TextField();
+      taskInput.setPromptText("Enter task name");
       taskInput.setText(task.get(0));
       addPane.add(taskInput, 0, 3);
       taskInput.setPrefWidth(250);
@@ -1253,6 +1344,7 @@ public class Todolist {
       descLabel.getStyleClass().add("labelColor");
 
       TextArea descInput = new TextArea();
+      descInput.setPromptText("Enter task description");
       descInput.setText(task.get(1));
       addPane.add(descInput, 0, 5);
       descInput.setPrefWidth(250);
@@ -1330,21 +1422,68 @@ public class Todolist {
       VBox colabBox = new VBox();
       colabBox.setSpacing(5);
 
+      // Declare and initialize the colabInputs list
+      List<TextField> colabInputs = new ArrayList<>();
+
       for (String email : collaborators) {
-        TextField colabInput = new TextField(email);
-        Button colabInputBtn = new Button("Remove Collaborator");
-        colabBox.getChildren().addAll(colabInput, colabInputBtn);
+      TextField colabInput = new TextField(email);
+      colabInput.setPrefWidth(250);
+      colabInput.setPrefHeight(35);
+      colabInput.setEditable(true);
+      colabInputs.add(colabInput); // Add each collaborator input to the list
+
+      Button colabInputBtn = new Button("-");
+      colabInputBtn.setPrefWidth(50);
+      colabInputBtn.setPrefHeight(35);
+
+      // Check if the email is from the creator or the current user
+      boolean isCreator = email.equals(getEmailByUserId(connection, createdBy));
+      boolean isCurrentUser = email.equals(getEmailByUserId(connection, App.currentUserId));
+
+      HBox colabRow = new HBox();
+      colabRow.setSpacing(10); // Adjust spacing as needed
+      colabRow.getChildren().add(colabInput);
+
+      if (isCreator || isCurrentUser) {
+          colabInput.setEditable(false);
+      } else {
+          colabRow.getChildren().add(colabInputBtn);
+          colabInputBtn.setOnAction(event -> {
+              colabBox.getChildren().remove(colabRow);
+              colabInputs.remove(colabInput); // Remove the input from the list when it's removed from the UI
+          });
       }
+
+      colabBox.getChildren().add(colabRow);
+    }
 
       addPane.add(colabBox, 0, 15);
 
-      Button addColabBtn = new Button("Add Collaborator");
-      addPane.add(addColabBtn, 0, 16);
+      Button addColabBtn = new Button("+");
+      addColabBtn.setPrefWidth(50);
+      addColabBtn.setPrefHeight(35);
+      addPane.add(addColabBtn, 1, 15);
 
       addColabBtn.setOnAction(event -> {
         TextField newColabInput = new TextField();
-        newColabInput.setPromptText("Enter collaborator email");
-        colabBox.getChildren().add(newColabInput);
+        newColabInput.setPrefWidth(250);
+        newColabInput.setPrefHeight(35);
+        // newColabInput.setPromptText("Enter collaborator email");
+        colabInputs.add(newColabInput); // Add the new collaborator input to the list
+        Button colabRemoveBtn = new Button("-");
+        colabRemoveBtn.setPrefWidth(50);
+        colabRemoveBtn.setPrefHeight(35);
+        HBox newColabRow = new HBox();
+        newColabRow.setSpacing(10);
+        newColabRow.getChildren().addAll(newColabInput, colabRemoveBtn);
+        colabBox.getChildren().add(newColabRow);
+        colabRemoveBtn.setOnAction(event1 -> {
+          newColabRow.getChildren().remove(newColabInput);
+          colabInputs.remove(newColabInput);
+          newColabRow.getChildren().remove(colabRemoveBtn);
+          colabInputs.remove(colabRemoveBtn);
+        });
+
       });
 
       Button startBtn = new Button("Start Task");
@@ -1358,16 +1497,169 @@ public class Todolist {
           try {
             Time time = new Time();
             time.showTime(new Stage());
-            startScreenCaptureLoop();
+            screenCapture();
           } catch (Exception e) {
             e.printStackTrace();
           }
         }
       });
 
-      HBox editTaskbox = new HBox(startBtn);
+      Image editImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Folder_open.png"));
+      Button addBtn = new Button();
+      addBtn.setGraphic(new ImageView(editImg));
+      addBtn.setPrefWidth(51);
+      addBtn.setPrefHeight(51);
+      addBtn.getStyleClass().add("editBtn");
+
+      addBtn.setOnAction(new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+          try {
+            String taskName = taskInput.getText();
+            String description = descInput.getText();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
+            LocalDate taskDate = dateInput.getValue();
+            String formatDate = taskDate.format(formatter);
+            String priority = priorityInput.getValue();
+            String hour = hourInput.getValue();
+            String minute = minuteInput.getValue();
+            // int hourInt = Integer.parseInt(hour);
+            // int minuteInt = Integer.parseInt(minute);
+            // LocalTime time = LocalTime.of(hourInt, minuteInt);
+            String tag = tagInput.getText();
+
+            int priorityId;
+
+            switch (priority) {
+              case "Low":
+                priorityId = 3;
+                break;
+              case "Medium":
+                priorityId = 2;
+                break;
+              case "High":
+                priorityId = 1;
+                break;
+              default:
+                System.err.println("Invalid priority: " + priorityInput);
+                priorityId = 3;
+            }
+
+            String updateTaskQuery = "UPDATE tasks SET title = ?, description = ?, deadline = ?, label = ?, new_priority_id = ? WHERE id = ? AND created_by = ?";
+            PreparedStatement statement = connection.prepareStatement(updateTaskQuery);
+
+            statement.setString(1, taskName);
+            statement.setString(2, description);
+            statement.setString(3, formatDate);
+            statement.setString(4, tag);
+            statement.setInt(5, priorityId);
+            statement.setString(6, currentTaskId);
+            statement.setInt(7, App.currentUserId);
+
+            statement.executeUpdate();
+
+            String deleteColabQuery = "DELETE FROM collaborators WHERE task_id = ?";
+            PreparedStatement deleteColabStatement = connection.prepareStatement(deleteColabQuery);
+            deleteColabStatement.setString(1, currentTaskId);
+            deleteColabStatement.executeUpdate();
+
+            String insertColabQuery = "INSERT INTO collaborators (task_id, user_id) VALUES (?, ?)";
+            PreparedStatement insertColabStatement = connection.prepareStatement(insertColabQuery);
+
+            for (TextField colabInput : colabInputs) {
+              String email = colabInput.getText();
+              String getUserIdQuery = "SELECT id FROM users WHERE email = ?";
+              PreparedStatement getUserIdStatement = connection.prepareStatement(getUserIdQuery);
+              getUserIdStatement.setString(1, email);
+              ResultSet rsUser = getUserIdStatement.executeQuery();
+
+              if (rsUser.next()) {
+                int userId = rsUser.getInt("id");
+                insertColabStatement.setString(1, currentTaskId);
+                insertColabStatement.setInt(2, userId);
+                insertColabStatement.addBatch();
+              } else {
+                Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                errorAlert.setTitle("Failed to update collaborators");
+                errorAlert.setHeaderText(null);
+                errorAlert.setContentText("User with email " + email + " not found.");
+                errorAlert.showAndWait();
+                return;
+              }
+            }
+
+            insertColabStatement.executeBatch();
+
+            Stage showStage = new Stage();
+            Todolist.show(showStage);
+            detailTaskStage.close();
+            showStage.close();
+            Platform.runLater(new Runnable() {
+              @Override
+              public void run() {
+                try {
+                  Todolist.show(new Stage());
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }
+            });
+          } catch (SQLException e) {
+            e.printStackTrace();
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      });
+
+      Image deleteImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/Trash.png"));
+      Button deleteBtn = new Button();
+      deleteBtn.setGraphic(new ImageView(deleteImg));
+      deleteBtn.setPrefWidth(51);
+      deleteBtn.setPrefHeight(51);
+      deleteBtn.getStyleClass().add("editBtn");
+
+      deleteBtn.setOnAction(new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+          String deleteColabQuery = "DELETE FROM collaborators WHERE task_id = ?";
+          String deleteTaskQuery = "DELETE FROM tasks WHERE id = ? AND created_by = ?";
+
+          try {
+            PreparedStatement deleteColabStatement = connection.prepareStatement(deleteColabQuery);
+            deleteColabStatement.setString(1, currentTaskId);
+            deleteColabStatement.executeUpdate();
+
+            PreparedStatement deleteTaskStatement = connection.prepareStatement(deleteTaskQuery);
+            deleteTaskStatement.setString(1, currentTaskId);
+            deleteTaskStatement.setInt(2, App.currentUserId);
+            deleteTaskStatement.executeUpdate();
+
+            Stage showStage = new Stage();
+            Todolist.show(showStage);
+            detailTaskStage.close();
+            showStage.close();
+            Platform.runLater(new Runnable() {
+              @Override
+              public void run() {
+                try {
+                  Todolist.show(new Stage());
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }
+            });
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      });
+
+      HBox btnBox = new HBox(addBtn, deleteBtn);
+      btnBox.setSpacing(5);
+      HBox editTaskbox = new HBox(startBtn, btnBox);
       editTaskbox.setSpacing(40);
-      addPane.add(editTaskbox, 0, 17);
+      addPane.add(editTaskbox, 0, 16);
 
       box.getChildren().addAll(addPane);
       BorderPane.setAlignment(box, Pos.CENTER);
@@ -1381,6 +1673,18 @@ public class Todolist {
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  private static String getEmailByUserId(Connection connection, int userId) throws SQLException {
+    String email = null;
+    String query = "SELECT email FROM users WHERE id = ?";
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setInt(1, userId);
+    ResultSet rs = statement.executeQuery();
+    if (rs.next()) {
+      email = rs.getString("email");
+    }
+    return email;
   }
 
 }

@@ -87,3 +87,8 @@
     -fx-background-color: #0D0E12;
     -fx-background-radius: 100px;
 }
+.createdBy {
+    -fx-fill: #BFBFBF;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
