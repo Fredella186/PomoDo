@@ -1280,7 +1280,7 @@ public class Todolist {
 
   public static void detailTask(Stage detailTaskStage) throws Exception {
     BorderPane borderPane = new BorderPane();
-    borderPane.getStylesheets().add("/assets/addTaskStyle.css");
+    borderPane.getStylesheets().add("/assets/showTaskStyle.css");
 
     Connection connection = Dbconnect.getConnect();
     // String sql = "SELECT * FROM tasks WHERE created_by = ? AND id = ?";
@@ -1489,7 +1489,7 @@ public class Todolist {
       Button startBtn = new Button("Start Task");
       startBtn.setPrefWidth(100);
       startBtn.setPrefHeight(51);
-      startBtn.getStyleClass().add("btn");
+      startBtn.getStyleClass().add("startBtn");
 
       startBtn.setOnAction(new EventHandler<ActionEvent>() {
         @Override
@@ -1509,7 +1509,7 @@ public class Todolist {
       addBtn.setGraphic(new ImageView(editImg));
       addBtn.setPrefWidth(51);
       addBtn.setPrefHeight(51);
-      addBtn.getStyleClass().add("editBtn");
+      addBtn.getStyleClass().add("saveBtn");
 
       addBtn.setOnAction(new EventHandler<ActionEvent>() {
         @Override
@@ -1617,7 +1617,7 @@ public class Todolist {
       deleteBtn.setGraphic(new ImageView(deleteImg));
       deleteBtn.setPrefWidth(51);
       deleteBtn.setPrefHeight(51);
-      deleteBtn.getStyleClass().add("editBtn");
+      deleteBtn.getStyleClass().add("deleteBtn");
 
       deleteBtn.setOnAction(new EventHandler<ActionEvent>() {
         @Override
