@@ -92,3 +92,17 @@
     -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
+.saveBtn {
+    -fx-background-radius: 50%;
+    -fx-background-color: #2DD081;
+}
+.deleteBtn {
+    -fx-background-radius: 50%;
+    -fx-background-color: #E94040;
+}
+.startBtn{
+    -fx-background-color: #FF6629;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    /* -fx-font-weight: ; */
+}
