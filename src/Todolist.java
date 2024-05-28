@@ -469,114 +469,116 @@ public class Todolist {
 
     addBtn.setOnAction(event -> {
       try {
-        String taskName = taskInput.getText();
-        String description = descInput.getText();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
-        LocalDate taskDate = dateInput.getValue();
-        String formatDate = taskDate.format(formatter);
-        String priority = priorityInput.getValue();
-        String hour = hourInput.getValue();
-        String minute = minuteInput.getValue();
-        int hourInt = Integer.parseInt(hour);
-        int minuteInt = Integer.parseInt(minute);
-        LocalTime time = LocalTime.of(hourInt, minuteInt);
-        String tag = tagInput.getText();
-        List<String> collaboratorEmails = new ArrayList<>();
-        collaboratorEmails.add(colabInput.getText());
-        additionalColabFields.forEach(field -> collaboratorEmails.add(field.getText()));
-
-        int priorityId;
-        switch (priority) {
-          case "Low":
-            priorityId = 3;
-            break;
-          case "Medium":
-            priorityId = 2;
-            break;
-          case "High":
-            priorityId = 1;
-            break;
-          default:
-            System.err.println("Invalid priority: " + priorityInput);
-            priorityId = 3;
-        }
-
-        Connection connection = Dbconnect.getConnect();
-        String getUserIdQuery = "SELECT id FROM users WHERE email = ?";
-        PreparedStatement getUserIdStatement = connection.prepareStatement(getUserIdQuery);
-        List<Integer> collaboratorIds = new ArrayList<>();
-
-        for (String email : collaboratorEmails) {
-          getUserIdStatement.setString(1, email);
-          try (ResultSet rs = getUserIdStatement.executeQuery()) {
-            if (rs.next()) {
-              int userId = rs.getInt("id");
-              collaboratorIds.add(userId);
-            } else {
-              Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-              errorAlert.setTitle("Failed to add collaborators");
-              errorAlert.setHeaderText(null);
-              errorAlert.setContentText("User with email " + email + " not found.");
-              errorAlert.showAndWait();
-              return; // Exit the method, do not add the task
-            }
+          String taskName = taskInput.getText();
+          String description = descInput.getText();
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yy/MM/dd");
+          LocalDate taskDate = dateInput.getValue();
+          String formatDate = taskDate.format(formatter);
+          String priority = priorityInput.getValue();
+          String hour = hourInput.getValue();
+          String minute = minuteInput.getValue();
+          int hourInt = Integer.parseInt(hour);
+          int minuteInt = Integer.parseInt(minute);
+          LocalTime time = LocalTime.of(hourInt, minuteInt);
+          String tag = tagInput.getText();
+          List<String> collaboratorEmails = new ArrayList<>();
+          if (!colabInput.getText().isEmpty()) {
+              collaboratorEmails.add(colabInput.getText());
+              additionalColabFields.forEach(field -> collaboratorEmails.add(field.getText()));
           }
-        }
-
-        String insertTaskQuery = "INSERT INTO tasks (created_by, priority_id, title, description, deadline, label, new_priority_id) VALUES (?,?,?,?,?,?,?)";
-        PreparedStatement statement = connection.prepareStatement(insertTaskQuery, new String[] { "task_id" });
-
-        statement.setInt(1, App.currentUserId);
-        statement.setInt(2, priorityId);
-        statement.setString(3, taskName);
-        statement.setString(4, description);
-        statement.setString(5, formatDate);
-        statement.setString(6, tag);
-        statement.setInt(7, priorityId);
-
-        statement.executeUpdate();
-
-        // Retrieve the generated task_id
-        int taskId;
-        try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-          if (generatedKeys.next()) {
-            taskId = generatedKeys.getInt(1);
-          } else {
-            throw new SQLException("Creating task failed, no ID obtained.");
+  
+          int priorityId;
+          switch (priority) {
+              case "Low":
+                  priorityId = 3;
+                  break;
+              case "Medium":
+                  priorityId = 2;
+                  break;
+              case "High":
+                  priorityId = 1;
+                  break;
+              default:
+                  System.err.println("Invalid priority: " + priorityInput);
+                  priorityId = 3;
           }
-        }
-
-        String insertUserCobalQuery = "INSERT INTO collaborators (user_id, task_id) VALUES (?, ?)";
-        PreparedStatement userColabStatement = connection.prepareStatement(insertUserCobalQuery);
-        userColabStatement.setInt(1, App.currentUserId);
-        userColabStatement.setInt(2, taskId);
-        userColabStatement.executeUpdate();
-
-        // Insert collaborators
-        String insertColabQuery = "INSERT INTO collaborators (task_id, user_id) VALUES (?, ?)";
-        PreparedStatement colabStatement = connection.prepareStatement(insertColabQuery);
-
-        for (int userId : collaboratorIds) {
-          colabStatement.setInt(1, taskId);
-          colabStatement.setInt(2, userId);
-          colabStatement.addBatch();
-        }
-        colabStatement.executeBatch();
-
-        Platform.runLater(() -> {
-          try {
-            Todolist.show(new Stage());
-            addStage.close();
-          } catch (Exception e) {
-            e.printStackTrace();
+  
+          Connection connection = Dbconnect.getConnect();
+          String getUserIdQuery = "SELECT id FROM users WHERE email = ?";
+          PreparedStatement getUserIdStatement = connection.prepareStatement(getUserIdQuery);
+          List<Integer> collaboratorIds = new ArrayList<>();
+  
+          for (String email : collaboratorEmails) {
+              getUserIdStatement.setString(1, email);
+              try (ResultSet rs = getUserIdStatement.executeQuery()) {
+                  if (rs.next()) {
+                      int userId = rs.getInt("id");
+                      collaboratorIds.add(userId);
+                  } else {
+                      Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                      errorAlert.setTitle("Failed to add collaborators");
+                      errorAlert.setHeaderText(null);
+                      errorAlert.setContentText("User with email " + email + " not found.");
+                      errorAlert.showAndWait();
+                      return;
+                  }
+              }
           }
-        });
+  
+          String insertTaskQuery = "INSERT INTO tasks (created_by, priority_id, title, description, deadline, label, new_priority_id) VALUES (?,?,?,?,?,?,?)";
+          PreparedStatement statement = connection.prepareStatement(insertTaskQuery, new String[] { "task_id" });
+  
+          statement.setInt(1, App.currentUserId);
+          statement.setInt(2, priorityId);
+          statement.setString(3, taskName);
+          statement.setString(4, description);
+          statement.setString(5, formatDate);
+          statement.setString(6, tag);
+          statement.setInt(7, priorityId);
+  
+          statement.executeUpdate();
+  
+          int taskId;
+          try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+              if (generatedKeys.next()) {
+                  taskId = generatedKeys.getInt(1);
+              } else {
+                  throw new SQLException("Creating task failed, no ID obtained.");
+              }
+          }
+  
+          String insertUserColabQuery = "INSERT INTO collaborators (user_id, task_id) VALUES (?, ?)";
+          PreparedStatement userColabStatement = connection.prepareStatement(insertUserColabQuery);
+          userColabStatement.setInt(1, App.currentUserId);
+          userColabStatement.setInt(2, taskId);
+          userColabStatement.executeUpdate();
+  
+          String insertColabQuery = "INSERT INTO collaborators (task_id, user_id) VALUES (?, ?)";
+          PreparedStatement colabStatement = connection.prepareStatement(insertColabQuery);
+  
+          for (int userId : collaboratorIds) {
+              colabStatement.setInt(1, taskId);
+              colabStatement.setInt(2, userId);
+              colabStatement.addBatch();
+          }
+          colabStatement.executeBatch();
+  
+          Platform.runLater(() -> {
+              try {
+                  Todolist.show(new Stage());
+                  addStage.close();
+              } catch (Exception e) {
+                  e.printStackTrace();
+              }
+          });
+  
       } catch (SQLException e) {
-        e.printStackTrace();
+          e.printStackTrace();
       } catch (Exception e) {
-        e.printStackTrace();
+          e.printStackTrace();
       }
-    });
+  });
+  
 
     box.getChildren().addAll(addPane);
     BorderPane.setAlignment(box, Pos.CENTER);
