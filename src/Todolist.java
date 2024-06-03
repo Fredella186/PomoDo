@@ -82,7 +82,7 @@ public class Todolist {
     return duration;
   }
 
-  public static void screenCapture() throws AWTException, IOException, SQLException {
+  public static String screenCapture() throws AWTException, IOException, SQLException {
     Robot robot = new Robot();
     Rectangle rectangle = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
     BufferedImage image = robot.createScreenCapture(rectangle);
@@ -95,7 +95,7 @@ public class Todolist {
         System.out.println("Directory created successfully!");
       } else {
         System.out.println("Failed to create directory!");
-        return;
+        return null;
       }
     }
 
@@ -114,22 +114,43 @@ public class Todolist {
     File file = new File(directory, fileName);
     ImageIO.write(image, "png", file);
 
-    System.out.println("file berhasil disave di " + file.getAbsolutePath());
-  }
+    System.out.println("File berhasil disave di " + file.getAbsolutePath());
+    return fileName; // Mengembalikan nama file gambar
+}
 
-  private static void startScreenCaptureLoop() {
-    new Thread(() -> {
+private static void startScreenCaptureLoop() {
+  new Thread(() -> {
       while (running) {
-        try {
-          screenCapture();
-          // Delay between captures
-          TimeUnit.SECONDS.sleep(getRandomInterval());
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
+          try {
+              // Capture screen and get file name
+              String fileName = screenCapture();
+              if (fileName != null) {
+                  // Save the file name to the database
+                  saveFileNameToDatabase(fileName);
+              }
+              // Delay between captures
+              TimeUnit.SECONDS.sleep(getRandomInterval());
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
       }
       System.out.println("Loop stopped.");
     }).start();
+  }
+
+  private static void saveFileNameToDatabase(String fileName) {
+    try {
+        Connection connection = Dbconnect.getConnect();
+        String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES (?,?,?)";
+        PreparedStatement statement = connection.prepareStatement(savePic);
+        statement.setString(1, currentTaskId);
+        statement.setInt(2, App.currentUserId);
+        statement.setString(3, fileName);
+        statement.executeUpdate();
+        System.out.println("File name saved to database: " + fileName);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
   }
 
   public static String[] getTaskId() throws SQLException {
@@ -1531,6 +1552,22 @@ public class Todolist {
             Time time = new Time();
             time.showTime(new Stage());
             startScreenCaptureLoop();
+            Connection connection = Dbconnect.getConnect();
+            String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES (?,?,?)";
+            PreparedStatement statement = connection.prepareStatement(savePic);
+            statement.setString(1, currentTaskId);
+            statement.setInt(2, App.currentUserId);
+
+            // Mengambil nama file gambar
+            String fileName = screenCapture();
+            if (fileName != null) {
+                statement.setString(3, fileName);
+                statement.executeUpdate();
+                System.out.println("File name saved to database: " + fileName);
+            } else {
+                System.out.println("Failed to capture screen or save file.");
+            };
+
           } catch (Exception e) {
             e.printStackTrace();
           }
@@ -1688,7 +1725,27 @@ public class Todolist {
         }
       });
 
-      HBox btnBox = new HBox(addBtn, deleteBtn);
+      Button picBtn = new Button();
+      Image picImg = new Image(Todolist.class.getResourceAsStream("/assets/Image/image.png"));
+      ImageView picView = new ImageView(picImg);
+      picBtn.setGraphic(picView);
+      picBtn.setPrefWidth(51);
+      picBtn.setPrefHeight(51);
+      picBtn.getStyleClass().add("picBtn");
+
+      picBtn.setOnAction(new EventHandler<ActionEvent>() {
+        @Override
+        public void handle(ActionEvent event) {
+          try {
+            Picture.showPic(detailTaskStage);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      });
+
+
+      HBox btnBox = new HBox(addBtn, deleteBtn, picBtn);
       btnBox.setSpacing(5);
       HBox editTaskbox = new HBox(startBtn, btnBox);
       editTaskbox.setSpacing(40);

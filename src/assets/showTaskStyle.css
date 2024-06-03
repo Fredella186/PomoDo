@@ -106,3 +106,11 @@
     -fx-font-size: 12px;
     /* -fx-font-weight: ; */
 }
+.picBtn {
+    -fx-background-radius: 50%;
+    -fx-background-color: #FFD21C;
+}
+.picBtn .image-view {
+    -fx-fit-width: 24;
+    -fx-fit-height: 24;
+}

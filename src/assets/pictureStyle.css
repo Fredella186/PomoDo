@@ -1,0 +1,8 @@
+.bgColor{
+    -fx-background-color: white;
+}
+.text{
+    -fx-fill: black;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+}
