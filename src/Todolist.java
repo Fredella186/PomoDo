@@ -116,23 +116,23 @@ public class Todolist {
 
     System.out.println("File berhasil disave di " + file.getAbsolutePath());
     return fileName; // Mengembalikan nama file gambar
-}
+  }
 
-private static void startScreenCaptureLoop() {
-  new Thread(() -> {
+  private static void startScreenCaptureLoop() {
+    new Thread(() -> {
       while (running) {
-          try {
-              // Capture screen and get file name
-              String fileName = screenCapture();
-              if (fileName != null) {
-                  // Save the file name to the database
-                  saveFileNameToDatabase(fileName);
-              }
-              // Delay between captures
-              TimeUnit.SECONDS.sleep(getRandomInterval());
-          } catch (Exception e) {
-              e.printStackTrace();
+        try {
+          // Capture screen and get file name
+          String fileName = screenCapture();
+          if (fileName != null) {
+            // Save the file name to the database
+            saveFileNameToDatabase(fileName);
           }
+          // Delay between captures
+          TimeUnit.SECONDS.sleep(getRandomInterval());
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
       System.out.println("Loop stopped.");
     }).start();
@@ -140,16 +140,16 @@ private static void startScreenCaptureLoop() {
 
   private static void saveFileNameToDatabase(String fileName) {
     try {
-        Connection connection = Dbconnect.getConnect();
-        String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES (?,?,?)";
-        PreparedStatement statement = connection.prepareStatement(savePic);
-        statement.setString(1, currentTaskId);
-        statement.setInt(2, App.currentUserId);
-        statement.setString(3, fileName);
-        statement.executeUpdate();
-        System.out.println("File name saved to database: " + fileName);
+      Connection connection = Dbconnect.getConnect();
+      String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES (?,?,?)";
+      PreparedStatement statement = connection.prepareStatement(savePic);
+      statement.setString(1, currentTaskId);
+      statement.setInt(2, App.currentUserId);
+      statement.setString(3, fileName);
+      statement.executeUpdate();
+      System.out.println("File name saved to database: " + fileName);
     } catch (SQLException e) {
-        e.printStackTrace();
+      e.printStackTrace();
     }
   }
 
@@ -487,7 +487,6 @@ private static void startScreenCaptureLoop() {
     HBox btnBox = new HBox(addBtn);
     btnBox.setSpacing(5);
     addPane.add(btnBox, 0, 17);
-
     addBtn.setOnAction(event -> {
       try {
         String taskName = taskInput.getText();
@@ -520,7 +519,7 @@ private static void startScreenCaptureLoop() {
             priorityId = 1;
             break;
           default:
-            System.err.println("Invalid priority: " + priorityInput);
+            System.err.println("Invalid priority: " + priority);
             priorityId = 3;
         }
 
@@ -546,16 +545,17 @@ private static void startScreenCaptureLoop() {
           }
         }
 
-        String insertTaskQuery = "INSERT INTO tasks (created_by, priority_id, title, description, deadline, label, new_priority_id) VALUES (?,?,?,?,?,?,?)";
+        String insertTaskQuery = "INSERT INTO tasks (created_by, priority_id, title, description, deadline, target_time, label, new_priority_id) VALUES (?,?,?,?,?,?,?,?)";
         PreparedStatement statement = connection.prepareStatement(insertTaskQuery, new String[] { "task_id" });
 
         statement.setInt(1, App.currentUserId);
         statement.setInt(2, priorityId);
         statement.setString(3, taskName);
         statement.setString(4, description);
-        statement.setString(5, formatDate);
-        statement.setString(6, tag);
-        statement.setInt(7, priorityId);
+        statement.setDate(5, java.sql.Date.valueOf(taskDate)); // Convert LocalDate to java.sql.Date
+        statement.setTime(6, java.sql.Time.valueOf(time)); // Convert LocalTime to java.sql.Time
+        statement.setString(7, tag);
+        statement.setInt(8, priorityId);
 
         statement.executeUpdate();
 
@@ -1355,6 +1355,7 @@ private static void startScreenCaptureLoop() {
         task.add(rs.getString("title"));
         task.add(rs.getString("description"));
         task.add(rs.getString("deadline"));
+        task.add(rs.getString("target_time"));
         task.add(rs.getString("new_priority_id"));
         task.add(rs.getString("label"));
         createdBy = rs.getInt("created_by"); // Get the creator's ID
@@ -1431,7 +1432,7 @@ private static void startScreenCaptureLoop() {
       String taskTimeWork = task.get(3);
       String[] timeParts = taskTimeWork.split(":");
 
-      if (timeParts.length == 2) {
+      if (timeParts.length == 3) { // Perhatikan perubahan di sini
         int hour = Integer.parseInt(timeParts[0]);
         int minute = Integer.parseInt(timeParts[1]);
 
@@ -1561,12 +1562,13 @@ private static void startScreenCaptureLoop() {
             // Mengambil nama file gambar
             String fileName = screenCapture();
             if (fileName != null) {
-                statement.setString(3, fileName);
-                statement.executeUpdate();
-                System.out.println("File name saved to database: " + fileName);
+              statement.setString(3, fileName);
+              statement.executeUpdate();
+              System.out.println("File name saved to database: " + fileName);
             } else {
-                System.out.println("Failed to capture screen or save file.");
-            };
+              System.out.println("Failed to capture screen or save file.");
+            }
+            ;
 
           } catch (Exception e) {
             e.printStackTrace();
@@ -1744,7 +1746,6 @@ private static void startScreenCaptureLoop() {
         }
       });
 
-
       HBox btnBox = new HBox(addBtn, deleteBtn, picBtn);
       btnBox.setSpacing(5);
       HBox editTaskbox = new HBox(startBtn, btnBox);
@@ -1776,5 +1777,4 @@ private static void startScreenCaptureLoop() {
     }
     return email;
   }
-
 }
