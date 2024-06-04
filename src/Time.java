@@ -99,7 +99,7 @@ public class Time extends Application {
         Text timeText = new Text();
         try {
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT target_time FROM tasks WHERE created_by=? AND id=?";
+            String sql = "SELECT target_time FROM tasks RIGHT JOIN collaborators ON tasks.id = collaborators.task_id WHERE collaborators.user_id = ? AND tasks.id = ?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, App.currentUserId);
             statement.setString(2, Todolist.currentTaskId);
