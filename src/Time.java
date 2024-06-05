@@ -99,7 +99,7 @@ public class Time extends Application {
         Text timeText = new Text();
         try {
             Connection connection = Dbconnect.getConnect();
-            String sql = "SELECT target_time FROM tasks RIGHT JOIN collaborators ON tasks.id = collaborators.task_id WHERE collaborators.user_id = ? AND tasks.id = ?";
+            String sql = "SELECT target_time FROM tasks WHERE created_by=? AND id=?";
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, App.currentUserId);
             statement.setString(2, Todolist.currentTaskId);
@@ -130,11 +130,22 @@ public class Time extends Application {
             }
         });
 
+        Image finishImg = new Image(Time.class.getResourceAsStream("/assets/Image/finish.png"));
+        ImageView finishView = new ImageView();
+        finishView.setImage(finishImg);
+        finishView.setOnMouseClicked(event -> {
+            try {
+                stopTimer(timeText, timeBar, elapsedTimeText);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
         HBox playBox = new HBox(playTimeView);
         playBox.setAlignment(Pos.CENTER);
         playBox.setSpacing(15);
 
-        HBox elapsedTimeBox = new HBox(elapsedTimeText, playBox); // Add playBox to elapsedTimeBox
+        HBox elapsedTimeBox = new HBox(elapsedTimeText, playBox, finishView); // Add playBox and finishView to elapsedTimeBox
         elapsedTimeBox.setAlignment(Pos.CENTER);
         elapsedTimeBox.setSpacing(15);
         BorderPane.setAlignment(elapsedTimeBox, Pos.BOTTOM_CENTER);
@@ -178,6 +189,14 @@ public class Time extends Application {
                 }));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
+    }
+
+    private static void stopTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText) throws SQLException {
+        if (timeline != null) {
+            timeline.stop();
+            saveElapsedTime(elapsedTime); // Save elapsed time to database on stop
+            timeline = null; // Clear the timeline
+        }
     }
 
     private static String formatTime(int seconds) {
