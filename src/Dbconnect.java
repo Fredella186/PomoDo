@@ -3,7 +3,7 @@ import java.sql.*;
 public class Dbconnect {
 
     private static final String HOST = "";
-    private static final int PORT = 0;
+    private static final int PORT = ;
     private static final String DB_NAME = "";
     private static final String USERNAME = "";
     private static final String PASSWORD = "";

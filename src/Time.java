@@ -135,6 +135,8 @@ public class Time extends Application {
         finishView.setImage(finishImg);
         finishView.setOnMouseClicked(event -> {
             try {
+                ScreenCapture.running = false;
+                ScreenCapture.imagesToPdf();
                 stopTimer(timeText, timeBar, elapsedTimeText);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -145,7 +147,8 @@ public class Time extends Application {
         playBox.setAlignment(Pos.CENTER);
         playBox.setSpacing(15);
 
-        HBox elapsedTimeBox = new HBox(elapsedTimeText, playBox, finishView); // Add playBox and finishView to elapsedTimeBox
+        HBox elapsedTimeBox = new HBox(elapsedTimeText, playBox, finishView); // Add playBox and finishView to
+                                                                              // elapsedTimeBox
         elapsedTimeBox.setAlignment(Pos.CENTER);
         elapsedTimeBox.setSpacing(15);
         BorderPane.setAlignment(elapsedTimeBox, Pos.BOTTOM_CENTER);
@@ -158,7 +161,8 @@ public class Time extends Application {
         startTimer(timeText, timeBar, elapsedTimeText); // Start the timer here
     }
 
-    private static void toggleTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText) throws SQLException {
+    private static void toggleTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText)
+            throws SQLException {
         if (timeline == null) {
             startTimer(timeText, timeBar, elapsedTimeText);
         } else {
@@ -173,7 +177,8 @@ public class Time extends Application {
 
     private static void startTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText) {
         String[] timeParts = timeText.getText().split(":");
-        int totalSeconds = Integer.parseInt(timeParts[0]) * 3600 + Integer.parseInt(timeParts[1]) * 60 + Integer.parseInt(timeParts[2]);
+        int totalSeconds = Integer.parseInt(timeParts[0]) * 3600 + Integer.parseInt(timeParts[1]) * 60
+                + Integer.parseInt(timeParts[2]);
 
         timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> {
@@ -191,12 +196,20 @@ public class Time extends Application {
         timeline.play();
     }
 
-    private static void stopTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText) throws SQLException {
+    private static void stopTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText) {
         if (timeline != null) {
             timeline.stop();
-            saveElapsedTime(elapsedTime); // Save elapsed time to database on stop
+            try {
+                saveElapsedTime(elapsedTime); // Save elapsed time to database on stop
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             timeline = null; // Clear the timeline
         }
+        timeText.setText("--:--:--"); // Set the timer text to "--"
+        timeBar.draw(0, "--:--:--"); // Clear the progress bar
+        elapsedTimeText.setText("Elapsed Time: " + formatTime(elapsedTime)); // Ensure elapsed time text remains the
+                                                                             // same
     }
 
     private static String formatTime(int seconds) {

@@ -57,101 +57,21 @@ public class Todolist {
   public static List<String> taskCreatedBy;
   private static int i = 0;
 
-  // indicator for looping screenCapture
-  public static boolean running = true;
-
-  public static String getUsername() throws SQLException {
-    Connection connection = Dbconnect.getConnect();
-    String sql = "SELECT username FROM users WHERE id = ?";
-    PreparedStatement statement = connection.prepareStatement(sql);
-    statement.setInt(1, App.currentUserId);
-    ResultSet resultSet = statement.executeQuery();
-
-    String username = "";
-    if (resultSet.next()) {
-      username = resultSet.getString("username");
-    }
-    return username;
-  }
-
-  public static int getRandomInterval() {
-    int min = 10;
-    int max = 30;
-    int duration = (int) (Math.random() * (max - min + 1)) + min;
-    System.out.println("Interval: " + duration);
-    return duration;
-  }
-
-  public static String screenCapture() throws AWTException, IOException, SQLException {
-    Robot robot = new Robot();
-    Rectangle rectangle = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-    BufferedImage image = robot.createScreenCapture(rectangle);
-
-    String directoryPath = System.getProperty("user.dir") + "/src/screenshots";
-    File directory = new File(directoryPath);
-
-    if (!directory.exists()) {
-      if (directory.mkdirs()) {
-        System.out.println("Directory created successfully!");
-      } else {
-        System.out.println("Failed to create directory!");
-        return null;
-      }
-    }
-
-    // File Name
-    String username = getUsername();
-    LocalDate currentDate = LocalDate.now();
-    LocalTime currentTime = LocalTime.now();
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH-mm-ss");
-
-    String formattedDate = currentDate.format(dateFormatter);
-    String formattedTime = currentTime.format(timeFormatter);
-
-    String fileName = formattedDate + "_" + formattedTime + "_" + username + ".png";
-
-    File file = new File(directory, fileName);
-    ImageIO.write(image, "png", file);
-
-    System.out.println("File berhasil disave di " + file.getAbsolutePath());
-    return fileName; // Mengembalikan nama file gambar
-  }
-
-  private static void startScreenCaptureLoop() {
-    new Thread(() -> {
-      while (running) {
-        try {
-          // Capture screen and get file name
-          String fileName = screenCapture();
-          if (fileName != null) {
-            // Save the file name to the database
-            saveFileNameToDatabase(fileName);
-          }
-          // Delay between captures
-          TimeUnit.SECONDS.sleep(getRandomInterval());
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-      }
-      System.out.println("Loop stopped.");
-    }).start();
-  }
-
-  private static void saveFileNameToDatabase(String fileName) {
-    try {
-      Connection connection = Dbconnect.getConnect();
-      String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES (?,?,?)";
-      PreparedStatement statement = connection.prepareStatement(savePic);
-      statement.setString(1, currentTaskId);
-      statement.setInt(2, App.currentUserId);
-      statement.setString(3, fileName);
-      statement.executeUpdate();
-      System.out.println("File name saved to database: " + fileName);
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
+  // public static void saveFileNameToDatabase(String fileName) {
+  // try {
+  // Connection connection = Dbconnect.getConnect();
+  // String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES
+  // (?,?,?)";
+  // PreparedStatement statement = connection.prepareStatement(savePic);
+  // statement.setString(1, currentTaskId);
+  // statement.setInt(2, App.currentUserId);
+  // statement.setString(3, fileName);
+  // statement.executeUpdate();
+  // System.out.println("File name saved to database: " + fileName);
+  // } catch (SQLException e) {
+  // e.printStackTrace();
+  // }
+  // }
 
   public static String[] getTaskId() throws SQLException {
 
@@ -1552,22 +1472,24 @@ public class Todolist {
           try {
             Time time = new Time();
             time.showTime(new Stage());
-            startScreenCaptureLoop();
-            Connection connection = Dbconnect.getConnect();
-            String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES (?,?,?)";
-            PreparedStatement statement = connection.prepareStatement(savePic);
-            statement.setString(1, currentTaskId);
-            statement.setInt(2, App.currentUserId);
+            ScreenCapture screencapture = new ScreenCapture();
+            ScreenCapture.startScreenCaptureLoop();
+            // Connection connection = Dbconnect.getConnect();
+            // String savePic = "INSERT INTO task_picture (task_id, user_id, picture) VALUES
+            // (?,?,?)";
+            // PreparedStatement statement = connection.prepareStatement(savePic);
+            // statement.setString(1, currentTaskId);
+            // statement.setInt(2, App.currentUserId);
 
             // Mengambil nama file gambar
-            String fileName = screenCapture();
-            if (fileName != null) {
-              statement.setString(3, fileName);
-              statement.executeUpdate();
-              System.out.println("File name saved to database: " + fileName);
-            } else {
-              System.out.println("Failed to capture screen or save file.");
-            }
+            // String fileName = ScreenCapture.startScreenCapture();
+            // if (fileName != null) {
+            // statement.setString(3, fileName);
+            // statement.executeUpdate();
+            // System.out.println("File name saved to database: " + fileName);
+            // } else {
+            // System.out.println("Failed to capture screen or save file.");
+            // }
             ;
 
           } catch (Exception e) {
