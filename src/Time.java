@@ -6,9 +6,12 @@ import java.sql.SQLException;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -20,7 +23,8 @@ import javafx.util.Duration;
 public class Time extends Application {
 
     private static int elapsedTime = 0; // Elapsed time in seconds
-    private static Timeline timeline;
+    private static Timeline workTimeline;
+    private static Timeline breakTimeline;
 
     public static void main(String[] args) {
         launch(args);
@@ -113,6 +117,7 @@ public class Time extends Application {
         elapsedTime = getElapsedTime(); // Initialize elapsed time from database
 
         Text elapsedTimeText = new Text("Elapsed Time: " + formatTime(elapsedTime)); // Add elapsed time text
+        Text breakTimeText = new Text(); // Add text to show break time countdown
 
         HBox timeBox = new HBox(timeBar); // Remove timeText from here
         timeBox.setAlignment(Pos.CENTER);
@@ -158,29 +163,29 @@ public class Time extends Application {
         showTimeStage.setScene(scene);
         showTimeStage.show();
 
-        startTimer(timeText, timeBar, elapsedTimeText); // Start the timer here
+        startTimer(timeText, timeBar, elapsedTimeText, breakTimeText, scene); // Start the timer here
     }
 
     private static void toggleTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText)
             throws SQLException {
-        if (timeline == null) {
-            startTimer(timeText, timeBar, elapsedTimeText);
+        if (workTimeline == null) {
+            startTimer(timeText, timeBar, elapsedTimeText, null, null);
         } else {
-            if (timeline.getStatus() == Timeline.Status.RUNNING) {
-                timeline.pause();
+            if (workTimeline.getStatus() == Timeline.Status.RUNNING) {
+                workTimeline.pause();
                 saveElapsedTime(elapsedTime); // Save elapsed time to database on pause
             } else {
-                timeline.play();
+                workTimeline.play();
             }
         }
     }
 
-    private static void startTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText) {
+    private static void startTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText, Text breakTimeText, Scene scene) {
         String[] timeParts = timeText.getText().split(":");
         int totalSeconds = Integer.parseInt(timeParts[0]) * 3600 + Integer.parseInt(timeParts[1]) * 60
                 + Integer.parseInt(timeParts[2]);
 
-        timeline = new Timeline(
+        workTimeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), event -> {
                     if (elapsedTime < totalSeconds) { // Add a check to prevent negative time
                         elapsedTime++;
@@ -188,28 +193,83 @@ public class Time extends Application {
                         timeText.setText(formatTime(totalSeconds - elapsedTime)); // Update time text
                         timeBar.draw((1 - progress) * 100, timeText.getText()); // Pass progress percentage as double
                         elapsedTimeText.setText("Elapsed Time: " + formatTime(elapsedTime)); // Update elapsed time text
+
+                        if (elapsedTime % (1 * 10) == 0) { // Show break notification every 5 minutes
+                            workTimeline.pause();
+                            Platform.runLater(() -> showBreakNotification(timeText, timeBar, elapsedTimeText, breakTimeText, scene));
+                        }
                     } else {
-                        timeline.stop(); // Stop the timer when it reaches zero
+                        workTimeline.stop(); // Stop the timer when it reaches zero
                     }
                 }));
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
+        workTimeline.setCycleCount(Timeline.INDEFINITE);
+        workTimeline.play();
     }
 
+    private static void showBreakNotification(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText, Text breakTimeText, Scene scene) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Take a 5-minute break?", ButtonType.YES, ButtonType.NO);
+        alert.setTitle("Break Time");
+        alert.setHeaderText(null);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                startBreakTimer(timeText, timeBar, elapsedTimeText, breakTimeText, scene);
+            } else {
+                workTimeline.play();
+            }
+        });
+    }
+
+    private static void startBreakTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText, Text breakTimeText, Scene scene) {
+        final int breakDuration = 1 * 10; // 5 minutes in seconds
+        final int[] breakTimeElapsed = {0};
+    
+        // Save the elements currently at the bottom
+        HBox bottomContent = (HBox) ((BorderPane) scene.getRoot()).getBottom();
+    
+        BorderPane borderPane = (BorderPane) scene.getRoot();
+        HBox breakBox = new HBox(breakTimeText); // Create an HBox for the break time text
+        breakBox.setAlignment(Pos.CENTER); // Align the break time text to the center
+        borderPane.setBottom(breakBox); // Add the break time text to the bottom of the UI
+    
+        breakTimeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            breakTimeElapsed[0]++;
+            breakTimeText.setText("Break Time: " + formatTime(breakDuration - breakTimeElapsed[0])); // Update break time text
+            if (breakTimeElapsed[0] >= breakDuration) {
+                breakTimeline.stop();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Break is over! Ready to continue?", ButtonType.OK);
+                    alert.setTitle("Break Over");
+                    alert.setHeaderText(null);
+                    alert.showAndWait().ifPresent(response -> {
+                        if (response == ButtonType.OK) {
+                            workTimeline.play();
+    
+                            // Restore the elements at the bottom
+                            borderPane.setBottom(bottomContent);
+                        }
+                    });
+                });
+            }
+        }));
+        breakTimeline.setCycleCount(Timeline.INDEFINITE);
+        breakTimeline.play();
+    }
+    
+
     private static void stopTimer(Text timeText, CircularProgressbar timeBar, Text elapsedTimeText) {
-        if (timeline != null) {
-            timeline.stop();
+        if (workTimeline != null) {
+            workTimeline.stop();
             try {
                 saveElapsedTime(elapsedTime); // Save elapsed time to database on stop
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            timeline = null; // Clear the timeline
+            workTimeline = null; // Clear the timeline
         }
         timeText.setText("--:--:--"); // Set the timer text to "--"
         timeBar.draw(0, "--:--:--"); // Clear the progress bar
-        elapsedTimeText.setText("Elapsed Time: " + formatTime(elapsedTime)); // Ensure elapsed time text remains the
-                                                                             // same
+        elapsedTimeText.setText("Elapsed Time: " + formatTime(elapsedTime)); // Ensure elapsed time text remains the same
     }
 
     private static String formatTime(int seconds) {
