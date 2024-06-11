@@ -114,3 +114,18 @@
     -fx-fit-width: 24;
     -fx-fit-height: 24;
 }
+.high{
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-fill: #EB6565;
+}
+.medium{
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-fill: #6765EB;
+}
+.low{
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-fill: #65EBAB;
+}
