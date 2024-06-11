@@ -143,6 +143,22 @@ public class Time extends Application {
                 ScreenCapture.running = false;
                 ScreenCapture.imagesToPdf();
                 stopTimer(timeText, timeBar, elapsedTimeText);
+
+                Connection connection = Dbconnect.getConnect();
+                String sql = "UPDATE tasks SET new_priority_id = '4' WHERE id = ?";
+                PreparedStatement statement = connection.prepareStatement(sql);
+                statement.setString(1, Todolist.currentTaskId);
+                statement.executeUpdate();
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Todolist.show(new Stage());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
