@@ -335,9 +335,7 @@ public class Todolist {
     hourInput.setValue("00");
 
     ComboBox<String> minuteInput = new ComboBox<>();
-    for (int minute = 0; minute < 60; minute++) {
-      minuteInput.getItems().add(String.format("%02d", minute));
-    }
+    minuteInput.getItems().addAll("00", "30");
     minuteInput.setValue("00");
 
     HBox timePicker = new HBox(hourInput, minuteInput);
@@ -769,9 +767,11 @@ public class Todolist {
                     Text task1Text = new Text(tasks[i]);
                     task1Text.getStyleClass().add("pTask");
 
-                    if(tasksCategory[i].equals("1")) {
-                      task1Text.getStyleClass().add("high");
-                  }
+                    Label taskPriorityLabel = new Label("High");
+                    taskPriorityLabel.getStyleClass().add("taskPrioLabel");
+
+                    Label taskPriorityLabelMed = new Label("Medium");
+                    taskPriorityLabelMed.getStyleClass().add("taskPrioLabelMed");
 
                     Label taskLabel = new Label(tasksLabel[i]);
                     taskLabel.getStyleClass().add("taskLabel");
@@ -809,12 +809,28 @@ public class Todolist {
                     createdByText.getStyleClass().add("createdBy");
                     grid.add(createdByText, 1, 0);
 
-                    taskPBox.getChildren().addAll(task1Text, taskLabel);
+                    if (tasksLabel[i] != null && !tasksLabel[i].isEmpty()) {
+                      if (tasksCategory[i].equals("1")) {
+                          taskPBox.getChildren().addAll(task1Text, taskLabel, taskPriorityLabel);
+                      } else if (tasksCategory[i].equals("2")) {
+                          taskPBox.getChildren().addAll(task1Text, taskLabel, taskPriorityLabelMed);
+                      } else {
+                          taskPBox.getChildren().addAll(task1Text, taskLabel);
+                      }
+                  } else if (tasksLabel[i] == null || tasksLabel[i].isEmpty()) {
+                      if (tasksCategory[i].equals("1")) {
+                          taskPBox.getChildren().addAll(task1Text, taskPriorityLabel);
+                      } else if (tasksCategory[i].equals("2")) {
+                          taskPBox.getChildren().addAll(task1Text, taskPriorityLabelMed);
+                      } else {
+                          taskPBox.getChildren().addAll(task1Text);
+                      }
+                  }
                     taskDescBox.getChildren().addAll(desText, timeImgTextBox);
                     priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
                     priorityBox.getChildren().addAll(cb, priorityTaskBox);
                     taskBoxMain.getChildren().add(priorityBox);
-
+                    
                     task1Text.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         @Override
                         public void handle(MouseEvent mouseEvent) {
@@ -927,7 +943,11 @@ public class Todolist {
               createdByText.getStyleClass().add("createdBy");
               grid.add(createdByText, 1, 0);
 
-              taskPBox.getChildren().addAll(task1Text, taskLabel);
+              if (tasksLabel[i] != null && !tasksLabel[i].isEmpty()) {
+                taskPBox.getChildren().addAll(task1Text, taskLabel);
+              } else {
+                  taskPBox.getChildren().addAll(task1Text);
+              }
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
               priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
@@ -1026,7 +1046,11 @@ public class Todolist {
               createdByText.getStyleClass().add("createdBy");
               grid.add(createdByText, 1, 0);
 
-              taskPBox.getChildren().addAll(task1Text, taskLabel);
+              if (tasksLabel[i] != null && !tasksLabel[i].isEmpty()) {
+                taskPBox.getChildren().addAll(task1Text, taskLabel);
+              } else {
+                  taskPBox.getChildren().addAll(task1Text);
+              }
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
               priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
@@ -1126,7 +1150,11 @@ public class Todolist {
               createdByText.getStyleClass().add("createdBy");
               grid.add(createdByText, 1, 0);
 
-              taskPBox.getChildren().addAll(task1Text, taskLabel);
+              if (tasksLabel[i] != null && !tasksLabel[i].isEmpty()) {
+                taskPBox.getChildren().addAll(task1Text, taskLabel);
+              } else {
+                  taskPBox.getChildren().addAll(task1Text);
+              }
               taskDescBox.getChildren().addAll(desText, timeImgTextBox);
               priorityTaskBox.getChildren().addAll(taskPBox, taskDescBox, grid);
               priorityBox.getChildren().addAll(cb, priorityTaskBox);
@@ -1406,7 +1434,7 @@ public class Todolist {
       tagLabel.getStyleClass().add("labelColor");
 
       TextField tagInput = new TextField();
-      tagInput.setText(task.get(4));
+      tagInput.setText(task.get(5));
       addPane.add(tagInput, 0, 13);
       tagInput.setPrefWidth(120);
       tagInput.setPrefHeight(35);

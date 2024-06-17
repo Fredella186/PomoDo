@@ -53,7 +53,7 @@
     -fx-background-radius: 38px;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-text-fill: #F7D9D9;
+    -fx-text-fill: white;
     -fx-alignment: center;
 }
 .descText{
@@ -128,4 +128,28 @@
     -fx-font-weight: bold;
     -fx-font-size: 20px;
     -fx-fill: #65EBAB;
+}
+.taskPrioLabel {
+    -fx-background-color: #EB6565;
+    -fx-min-width: 71px;
+    -fx-min-height: 27px;
+    -fx-max-width: 71px;
+    -fx-max-height: 27px;
+    -fx-background-radius: 38px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+}
+.taskPrioLabelMed {
+    -fx-background-color: #6765EB;
+    -fx-min-width: 71px;
+    -fx-min-height: 27px;
+    -fx-max-width: 71px;
+    -fx-max-height: 27px;
+    -fx-background-radius: 38px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-alignment: center;
 }
