@@ -883,7 +883,7 @@ public class Todolist {
           priorityText.getStyleClass().add("pTask");
           VBox taskBoxMain = new VBox(10);
           taskMainBox.getChildren().clear();
-          // **Execute the for loop only when lowBtn is clicked**
+          // *Execute the for loop only when lowBtn is clicked*
           for (int i = 0; i < tasks.length; i++) {
             int index = i;
             if (tasksNewCategory[i].equals("3")) {
@@ -986,7 +986,7 @@ public class Todolist {
           priorityText.getStyleClass().add("pTask");
           VBox taskBoxMain = new VBox(10);
 
-          // **Execute the for loop only when lowBtn is clicked**
+          // *Execute the for loop only when lowBtn is clicked*
           for (int i = 0; i < tasks.length; i++) {
             int index = i;
             if (tasksNewCategory[i].equals("2")) {
@@ -1086,7 +1086,7 @@ public class Todolist {
 
           taskMainBox.getChildren().clear();
 
-          // **Execute the for loop only when lowBtn is clicked**
+          // *Execute the for loop only when lowBtn is clicked*
           for (int i = 0; i < tasks.length; i++) {
             int index = i;
             if (tasksNewCategory[i].equals("1")) {
